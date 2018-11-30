@@ -1,0 +1,108 @@
+#1. set up the slices
+## monster type/rank
+## monster grade
+## exp values/etc.
+#2. set up hero
+#3. set up stats
+#4. set upskills
+
+#hero extra data container stuff
+#extra 0 is monster type
+#extra 1 is monster rank
+#extra 2 is monster grade
+#and that *should* be everthing needed
+plotscript,heroCheck,whichMType,whichMRank,whichMGrade,whichHero = -1,begin
+variable(heroToSetup,varI,checkVar)
+if(whichHero <> -1) then(heroToSetup := whichHero)
+else(
+checkVar := -1
+for(varI,0,23,1) do(
+	if(find hero(varI) == -1) then(
+		checkVar := varI
+		heroToSetup := checkVar
+		break
+		)
+	)
+if(checkVar == -1) then(
+exit returning(false)
+)
+)
+if(find hero(heroToSetup) == -1) then(add hero(heroToSetup))
+heroSetup(heroToSetup,whichMType,whichMRank,whichMGrade)
+return(true)
+end
+
+
+plotscript,heroSetup,whichHero,whichMType,whichMRank,whichMGrade,begin
+variable(heroToChange,heroPosition,spellToWrite,elementToWrite,varI)
+set slice extra(slice child(currHeroList,whichHero),0,whichMType)
+set slice extra(slice child(currHeroList,whichHero),1,whichMRank)
+set slice extra(slice child(currHeroList,whichHero),2,whichMGrade)
+
+#set up hero
+heroToChange := whichHero
+heroPosition := find hero(heroToChange) #worth having both of these for reasons
+#set up graphics
+monsterHeroImageLookup(whichMType,whichMRank,heroToChange)
+#name
+monsterNameLookup(whichMType,whichMRank)
+set hero name(15,heroPosition)
+#set up stats
+set hero level(heroPosition,baseLevel)
+realStatSet(heroToChange)
+
+
+#set up skills
+for(varI,0,2,1) do(
+spellToWrite := skillLookup(whichMType,varI,whichMRank)
+write spell(heroPosition,0,varI,spellToWrite)
+)
+
+#set up elemental resists
+for(varI,0,6,1) do(
+elementToWrite := monsterElementalLookup(whichMType,whichMRank,varI)
+set hero base elemental resist(heroPosition,varI,elementToWrite)
+)
+for(varI,22,30,1) do(
+elementToWrite := monsterElementalLookup(whichMType,whichMRank,varI)
+set hero base elemental resist(heroPosition,varI,elementToWrite)
+)
+#set xp
+variable(oldXP,newXP)
+oldXP := experience to next level(heroPosition)
+newXP := experience formula(get hero level(heroPosition),heroPosition)
+give experience(heroPosition,oldXP--newXP)
+
+end
+
+	script,realStatSet,whichHero,begin
+	variable(heroPosition,whichMType,whichMRank,whichMGrade,varI,currStat,hLevel)
+	heroPosition := find hero(whichHero)
+	hLevel := get hero level(heroPosition)
+	whichMType := get slice extra(slice child(currHeroList,whichHero),0)
+	whichMRank := get slice extra(slice child(currHeroList,whichHero),1)
+	whichMGrade := get slice extra(slice child(currHeroList,whichHero),2)
+	for(varI,0,9,1) do(
+	if(varI <> 3 && varI <> 5 && varI <> 9) then(
+	currStat := StatLookup(whichMType,varI,whichMRank)
+	set hero stat(heroPosition,varI,correctStatSet,base stat)
+	set hero stat(heroPosition,varI,correctStatSet,current stat)
+	)
+	if(varI == 3) then(set hero stat(heroPosition,varI,99,base stat)
+	set hero stat(heroPosition,varI,99,current stat))
+	if(varI == 5) then(set hero stat(heroPosition,varI,1,base stat)
+	set hero stat(heroPosition,varI,1,current stat))
+	if(varI == 9) then(set hero stat(heroPosition,varI,5,base stat)
+	set hero stat(heroPosition,varI,5,current stat))
+	)
+		subscript,correctStatSet,begin
+			variable(trueStat,rarityMult,StatMult)
+			if(varI == 0) then(StatMult := 2) else(StatMult := 1)
+			if(whichMGrade > 94) then(rarityMult := 3)
+			else if(whichMGrade > 74) then(rarityMult : = 2)
+			else if(whichMGrade > 49) then(rarityMult := 1)
+			else(rarityMult := 0)
+			trueStat := (currStat * ((whichMRank*10)+hLevel--1)) * (100+whichMGrade + 10*rarityMult)/100*StatMult
+			exit returning(trueStat)
+		end
+	end

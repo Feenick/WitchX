@@ -1,0 +1,853 @@
+
+plotscript,monsterCardGen,whichmonster,whichRank,whichGrade,begin
+#--V
+#create a monster card and throw its data into a big list of other cards
+#this is just the stuff that can't just be looked up though
+variable(cardTop,monsterType,monsterGrade,currentSlice)
+variable(varI)
+cardTop := create container(0,0)
+set parent(cardTop,interimCards)
+monsterType := whichmonster
+#children:
+#0: 0: monster type 1: grade (rarity)/2:rank [influences monster subtype]
+monsterGrade := whichGrade
+set slice extra(cardTop,0,monsterType)
+set slice extra(cardTop,1,monsterGrade)
+set slice extra(cardTop,2,whichRank)
+
+#--^
+end
+
+plotscript,monsterCardGenShow,begin
+#--V
+#shows cards generated throughout stage
+variable(varI,cardSl,cardShowContainer)
+if(interimCards) then(
+	cardShowContainer := create grid(30,150,1,child count(interimCards))
+	set slice clipping(cardShowContainer,true)
+	#
+	cardSl := first child(interimCards)
+	while(cardSl) do(
+		monsterCardSetup(cardShowContainer,cardSl)
+		cardSl := next sibling(cardSl)
+	)
+	for(varI,0,10,1) do(
+	set slice width(cardShowContainer,250--(230--varI*23))
+	wait(1)
+	)
+)
+
+
+	#--^
+	chooseCard
+	
+	subscript,chooseCard,begin
+	#--V
+	variable(cardSl)
+	while(cardShowContainer) do(
+	if(key is pressed(key:left)) then(
+	#press right
+	slice to back((last child(cardShowContainer)))
+	cardMover(last child(cardShowContainer))
+	wait(5)
+	)
+	if(key is pressed(key:right)) then(
+	#press left
+	slice to front(first child(cardShowContainer))
+	cardMover(last child(cardShowContainer))
+	wait(5)
+	)
+	if(key is pressed(key:Space) || key is pressed(key:Enter) || key is pressed(key:Ctrl)) then(
+	for(varI,10,0,-1) do(
+	set slice width(cardShowContainer,250--(230--varI*23))
+	wait(1)
+	)
+	free slice(cardShowContainer)
+	cardShowContainer := 0
+	wait(1)
+	)
+	wait(1)
+	)
+	subscript,cardMover,whichSlice,begin
+		move slice by(first child(whichSlice),0,10,3)
+		wait for slice(first child(whichSlice))
+		wait(1)
+		move slice by(first child(whichSlice),0,-10,3)
+		wait for slice(first child(whichSlice))
+		end
+	end
+#--^
+	end
+
+script,monsterCardSetup,cardShowContainer,cardSl,showWithGrid=0,begin
+	variable(interimCardVal,interimSliceVal,varI,varJ,statVal,skillVal)
+	variable(currCardMType,currCardMGrade,currCardMRank)
+	interimCardVal := load slice collection(0)
+	set parent(interimCardVal,cardShowContainer)
+		currCardMType := get slice extra(cardSl,0) #monsterType
+		currCardMGrade := get slice extra(cardSl,1) #monsterGrade
+		currCardMRank := get slice extra(cardSl,2) #whichRank
+	for(varI,1,4,1) do(
+		interimSliceVal := slice child(slice child(interimCardVal),varI)
+
+	switch(varI) do(
+		case(1) do( #name/grade/rank
+			monsterNameLookup(currCardMType,currCardMRank)
+			gradeValueGet(currCardMGrade)
+			set slice text(slice child(interimSliceVal,0),15)
+			set slice text(slice child(interimSliceVal,1),16)
+			$17 = ""
+			append number(17,currCardMGrade)
+			set slice text(slice child(interimSliceVal,2),17)
+			$17 = ""
+			append number(17,currCardMRank)
+			append ascii(17,240)
+			set slice text(slice child(interimSliceVal,3),17)
+			)
+		case(2) do( #picture
+			monsterImageLookup(currCardMType,currCardMRank,slice child(interimSliceVal))
+			
+			)
+		case(3) do( #stats
+			for(varJ,0,6,1) do(
+				if(varJ > 3) then(enemyStatShow(currCardMType,varJ+2,currCardMRank))
+				else if(varJ > 2) then(enemyStatShow(currCardMType,varJ+1,currCardMRank))
+				else(enemyStatShow(currCardMType,varJ,currCardMRank))
+				set slice text(slice child(interimSliceVal,varJ),10)
+				)
+			)
+		case(4) do( #skills
+			for(varJ,0,2,1) do(
+			skillVal := skillLookup(currCardMType,varJ,currCardMRank)
+			if(skillVal > 0) then(read attack name(18,skillVal))
+				else($18 = "")
+			set slice text(slice child(interimSliceVal,varJ),18)	
+			)
+			)
+		)
+	)
+	
+		subscript,enemyStatShow,whichMonster,whichStat,whichRank,begin
+		variable(statVal,varS)
+		statVal := StatLookup(whichMonster,whichStat,whichRank)
+		#use $10 for this
+		$10 = ""
+		if(statVal > 1) then(for(varS,1,statVal/2,1) do(append ascii(10,255)))
+		if(statVal,mod,2 == 1) then(append ascii(10,254))
+		if(string length(10) < 7) then(
+		for(varS,string length(10),6,1) do(append ascii(10,253))
+		)
+		end
+	
+	
+	end
+	
+plotscript,monsterGen,whichCard,begin
+variable(MType,MRank,MGrade,cardSl)
+cardSl := slice child(cardList,whichCard)
+MType := get slice extra(cardSl,0)
+MRank := get slice extra(cardSl,2)
+MGrade := get slice extra(cardSl,1)
+if(heroCheck(MType,MRank,MGrade)) then(
+free slice(cardSl)
+cardSl := 0
+)
+end	
+	
+	
+plotscript,partySetup,heroOrCard,whichMode=0,begin
+#based on hero/card stuff, do stuff
+#heroOrCard is 0, do hero stuff, otherwise do card stuff
+#modes:
+#0: select party members/spirits for awakening
+#1: sell party members/spirits
+#2: buy monster cards
+variable(bgSl)
+variable(allMonstersGrid,interimHeroSlice,positionVal,cursorSl,mGridContainer,heroCount)
+variable(chosenHeroSl,chosenHeroCount,initPositionFlag)
+variable(gridWidth,gridHeight,varI,gridXVal,gridYVal,exitVal,chosenHero)
+
+if(((heroOrCard == 1) && whichMode < 2) && child count(cardList) == 0) then(
+cutIn(7)
+newTextSystem(165)
+cutIn(0)
+exit script
+)
+if(heroOrCard) then(bgSl := load backdrop sprite(8))
+else if(whichMode) then(bgSl := load backdrop sprite(9))
+else(bgSl := load backdrop sprite(5))
+if(heroOrCard) then(allMonstersGrid := create grid(212,(child count(cardList)/4+1)*44,child count(cardList)/4+1,4)) #4xn grid
+else(allMonstersGrid := create grid(212,200,6,4)) #4x6 grid
+set slice x(allMonstersGrid,1)
+set slice y(allMonstersGrid,2)
+if(heroOrCard || whichMode) then(mGridContainer := create container(212,167))
+else(mGridContainer := create container(212,105))
+if(heroOrCard == 0 && whichMode == 0) then(chosenHeroSl := create grid(212,32,1,4)) #1x4 grid for party
+if(heroOrCard == 0 && whichMode == 0) then(put slice(chosenHeroSl,3,20))
+pressVal := 1
+if(heroOrCard || whichMode) then(put slice(mGridContainer,2,18))
+else(put slice(mGridContainer,2,80))
+gridYVal := slice screen y(mGridContainer)
+
+set slice clipping(mGridContainer,true)
+set parent(allMonstersGrid,mGridContainer)
+show string at(80,0,0)
+positionVal := 0
+if(heroOrCard) then(
+for(varI,0,child count(cardList)--1,1) do(
+	interimHeroSlice := load slice collection(7)
+	heroImageSetup(varI,interimHeroSlice,1,whichMode)
+	set parent(interimHeroSlice,allMonstersGrid)
+	heroCount += 1
+	set slice extra(slice child(interimHeroSlice,0),0,varI)
+)
+)
+else(
+for(varI,0,23,1) do(
+	if(find hero(varI) <> -1) then(
+		interimHeroSlice := load slice collection(1)
+		heroImageSetup(varI,interimHeroSlice)
+		set parent(interimHeroSlice,allMonstersGrid)
+		heroCount += 1
+		set slice extra(slice child(interimHeroSlice,0),0,varI)
+		if(not(initPositionFlag)) then(
+		initPositionFlag := 1
+		chosenHero := varI
+		)
+		)
+	)
+)
+gridWidth := get grid columns(allMonstersGrid)
+gridHeight := get grid rows(allMonstersGrid)
+if(heroOrCard) then(cursorSl:= create rect(51,44))
+else(cursorSl:= create rect(51,32))
+set rect raw border(cursorSl,2)
+set rect trans(cursorSl,trans:hollow)
+slConst(chosenHero)
+put slice(cursorSl,slice screen x(mGridContainer),slice screen y(mGridContainer))
+while(allMonstersGrid) do(
+
+if(key is pressed(key:right)) then(
+if(positionVal >= heroCount--1) then(positionVal := 0)
+else(positionVal += 1)
+chosenHero := get slice extra(slice child(slice child(allMonstersGrid,positionVal)),0)
+
+slConst(chosenHero)
+cursorMover
+#--V
+)
+if(key is pressed(key:left)) then(
+if(positionVal <= 0) then(positionVal := heroCount--1)
+else(positionVal -= 1)
+chosenHero := get slice extra(slice child(slice child(allMonstersGrid,positionVal)),0)
+slConst(chosenHero)
+cursorMover
+)
+if(key is pressed(key:down)) then(
+if(positionVal + gridWidth > heroCount--1) then(positionVal := positionVal,mod,gridWidth)
+else(positionVal += gridWidth)
+chosenHero := get slice extra(slice child(slice child(allMonstersGrid,positionVal)),0)
+slConst(chosenHero)
+cursorMover
+)
+if(key is pressed(key:up)) then(
+if(positionVal -- gridWidth < 0) then(positionVal := heroCount--1 -- (3--positionVal,mod,gridWidth))
+else(positionVal -= gridWidth)
+chosenHero := get slice extra(slice child(slice child(allMonstersGrid,positionVal)),0)
+slConst(chosenHero)
+cursorMover
+)
+if((keyval(key:space) == 3 || keyval(key:Enter) == 3 || keyval(key:Ctrl) == 3) && pressVal == 0) then(
+variable(pressVal)
+		if(heroOrCard) then(
+		if(whichMode) then(
+		#sell
+		sellSpirit(chosenHero)
+		if(child count(cardList)==0) then(
+			cutIn(7)
+			$10 = "Wyrd"
+			newTextSystem(166,10)
+			cutIn(0)
+			heroChooseCleanup
+			exit script
+		)
+		)
+		else(
+		#awaken
+		awakenMonster(chosenHero)
+		slConst(chosenHero)
+			if(child count(cardList)==0) then(
+			cutIn(7)
+			$10 = "Wyrd"
+			newTextSystem(166,10)
+			cutIn(0)
+			heroChooseCleanup
+			exit script
+		)
+		)
+		
+		for(varI,0,child count(allMonstersGrid)--1,1) do(set slice extra(slice child(slice child(allMonstersGrid,varI),0),0,varI))
+		)
+		else(
+		if(whichMode) then(
+		if(heroCount > 1) then(
+		sellMonsters
+		)
+		else(
+		newTextSystem(113)
+		)
+		)
+		else(
+	if(child count(chosenHeroSl)) then(
+	#replace this with a proper confirmation
+		if(chosenHeroCount == 4 || chosenHeroCount == heroCount) then(
+		chooseCard(0) #doesn't matter
+		)
+	for(varI,0,child count(chosenHeroSl)--1,1) do(
+		if(get slice extra(slice child(slice child(chosenHeroSl,varI)),0) == get slice extra(slice child(slice child(allMonstersGrid,positionVal)),0)) then(
+		unChooseCard(get slice extra(slice child(slice child(chosenHeroSl,varI)),0))
+		pressVal := 1
+		break
+		)
+	
+	)
+	)
+	if(not(pressVal)) then(
+		chooseCard(positionVal)
+		)
+
+		if(chosenHeroCount == 4 || chosenHeroCount == heroCount) then(
+		messageCreate($1 = "Use this party?",106,66)
+		yesNoMenu(1)
+		free slice(messageContainerSl)
+		messageContainerSl := 0
+		if(check tag(tag:menuYes)) then(
+		set tag(tag:menuYes,off)
+		chooseCard(0) #doesn't matter
+		)
+		else(unChooseCard(get slice extra(slice child(last child(chosenHeroSl)),0)))
+		)
+	))
+		if(positionVal > heroCount--1) then(
+		positionVal-=1
+		chosenHero := get slice extra(slice child(slice child(allMonstersGrid,positionVal)),0)
+		)
+		cursorMover
+		slConst(get slice extra(slice child(slice child(allMonstersGrid,positionVal)),0))
+)
+if(keyval(key:Esc) && pressVal == 0) then(
+	if(not(heroOrCard||whichMode)) then(
+	if(child count(chosenHeroSl) > 0) then(
+	unChooseCard(get slice extra(slice child(last child(chosenHeroSl)),0))
+	)
+	else(
+	#close
+	exitVal := 1
+	)
+	)
+	else(
+	exitVal := 1
+	)
+)
+#--^
+pressVal := 0
+if(exitVal) then(
+heroChooseCleanup
+exit script
+)
+wait(1)
+)
+
+	
+	subscript,chooseCard,whichChosenHero,begin
+	#--V
+	#marks chosen monster as in party, then 
+	variable(heroChSl,swapInVal,swapOutVal)
+	if(chosenHeroCount == 4 || chosenHeroCount == heroCount) then(
+		for(varI,0,chosenHeroCount--1,1) do(
+		swapInVal := find hero(get slice extra(slice child(slice child(chosenHeroSl,varI)),0))
+		swap by position(varI,swapInVal)
+		)
+		exitVal := 1
+		)
+		else(
+	heroChSl := clone slice(slice child(allMonstersGrid,whichChosenHero))
+	set parent(heroChSl,chosenHeroSl)
+	set slice visible(slice child(slice child(slice child(allMonstersGrid,whichChosenHero)),6),on)
+	chosenHeroCount += 1
+	)
+	#--^
+	end
+	
+	subscript,unChooseCard,whichChosenHero,begin
+	#--V
+	#removes whichChosenHero from hero chosen list
+	variable(varK)
+	for(varK,0,child count(chosenHeroSl) -- 1,1) do(
+	if(get slice extra(slice child(slice child(chosenHeroSl,varK)),0) == whichChosenHero) then(
+	free slice(slice child(chosenHeroSl,varK))
+	chosenHeroCount -= 1
+		set slice visible(slice child(slice child(slice child(allMonstersGrid,whichChosenHero)),6),off)
+	break
+	)
+	)
+	#--^
+	end
+
+	subscript,awakenMonster,whichCard,begin
+	#--V
+	variable(mType,mRank,mGrade)
+	#checks if you have the money to awaken something
+	#then checks if there's space
+	#if both those are okay, creates the new monster and removes the relevant card from stuff
+		mType := get slice extra(slice child(cardList,whichCard),0)
+		mRank := get slice extra(slice child(cardList,whichCard),2)
+		mGrade := get slice extra(slice child(cardList,whichCard),1)
+		currCost := monsterCostLookup(mType,mRank,mGrade)
+	if(currCost <= party money) then(
+		if(heroRoomCheck) then(
+			newTextSystem(75,-1,-1,1)
+			yesNoMenu
+			if(check tag(tag:menuYes)) then(
+			set tag(tag:menuYes,off)
+			lose money(currCost)
+			monsterGen(whichCard)
+			free slice(slice child(allMonstersGrid,whichCard))
+			heroCount -= 1
+			)
+
+		)
+		else(
+		newTextSystem(74)
+		)
+	)
+	else(
+	newTextSystem(76)
+	)
+	wait(1)
+	end
+		
+	subscript,sellSpirit,whichCard,begin
+	variable(mType,mRank,mGrade)
+		mType := get slice extra(slice child(cardList,whichCard),0)
+		mRank := get slice extra(slice child(cardList,whichCard),2)
+		mGrade := get slice extra(slice child(cardList,whichCard),1)
+	currCost := monsterCostLookup(mType,mRank,mGrade)/4
+	newTextSystem(79,-1,-1,1)
+	yesNoMenu
+	if(check tag(tag:menuYes)) then(
+	free slice(slice child(allMonstersGrid,whichCard))
+	free slice(slice child(cardList,whichCard))
+	heroCount -= 1
+	get money(currCost)
+	)
+
+	end	
+		
+	subscript,sellMonsters,begin
+	variable(slToDelete,mType,mRank,mGrade,varE)
+	mType := get slice extra(slice child(currHeroList,chosenHero),0)
+	mRank := get slice extra(slice child(currHeroList,ChosenHero),1)
+	mGrade := get slice extra(slice child(currHeroList,ChosenHero),2)
+	
+	currCost := monsterCostLookup(mType,mRank,mGrade)/2*get hero level(ChosenHero)
+	newTextSystem(80,-1,-1,1)
+	yesNoMenu
+	if(check tag(tag:menuYes)) then(
+	for(varE,0,4,1) do(unequip(find hero(ChosenHero),varE))
+	delete hero(ChosenHero)
+	free slice(slice child(allMonstersGrid,positionVal))
+	set slice extra(slice child(currHeroList,ChosenHero),0,0)
+	set slice extra(slice child(currHeroList,ChosenHero),1,0)
+	set slice extra(slice child(currHeroList,ChosenHero),2,0)
+	shardCount += currCost 
+	heroCount -=1
+	)
+	
+	
+	end
+		
+	subscript,heroChooseCleanup,begin
+	free slice(mGridContainer)
+	mGridContainer := 0
+	if(chosenHeroSl) then(
+	free slice(chosenHeroSl)
+	chosenHeroSl := 0)
+	free slice(cursorSl)
+	cursorSl := 0
+	free slice(interHeroViewSl)
+	interHeroViewSl := 0
+	free slice (bgSl)
+	bgSl := 0
+	#--^
+	end
+	
+	subscript,cursorMover,begin
+	#--V
+	variable(curPX,curPY,slY,moveY)
+	slY := slice screen y(slice child(allMonstersGrid,positionVal))
+	if(slY >= gridYVal+slice height(allMonstersGrid)/gridHeight*3--1) then(
+	while(slY >= gridYVal+slice height(allMonstersGrid)/gridHeight*3--1) do(
+	moveY -= slice height(allMonstersGrid)/gridHeight
+	slY -= slice height(allMonstersGrid)/gridHeight
+	)
+	move slice by(allMonstersGrid,0,moveY,2)
+	curPY := slice screen y(slice child(allMonstersGrid,positionVal))+moveY
+	)
+	else if(slY < gridYVal) then(
+	while(slY < gridYVal) do(
+	moveY += slice height(allMonstersGrid)/gridHeight
+	slY += slice height(allMonstersGrid)/gridHeight
+	)
+	move slice by(allMonstersGrid,0,moveY,2)
+	curPY := slice screen y(slice child(allMonstersGrid,positionVal)) + moveY
+	)
+	else(
+	curPY := slice screen y(slice child(allMonstersGrid,positionVal))
+	)
+	curPX := slice screen x(slice child(allMonstersGrid,positionVal))
+	move slice to(cursorSl,curPX,curPY,2)
+	wait for slice(cursorSl)
+	#--^
+	end
+	
+	subscript,slConst,chosenHero,begin
+	if(heroOrCard) then(
+	if(interHeroViewSl) then(
+	free slice(interHeroViewSl)
+	interHeroViewSl := 0
+	interHeroViewSl := create container(0,0)
+	)
+	else(
+	interHeroViewSl := create container(0,0)
+	)
+	put slice screen(interHeroViewSl,220,20)
+	monsterCardSetup(interHeroViewSl,slice child(cardList,chosenHero),1))
+		else(selectedSliceConstruct(chosenHero))
+	end
+end
+
+plotscript,showCurrParty,begin
+#shows current party
+#maybe throw current equipment here too???
+#--V
+variable(varI,heroPartySl,cursorSl,currHero,interimSliceVal,positionVal,setupVal,bgSl,chosenHero)
+bgSl := load backdrop sprite(4)
+heroPartySl := create grid(50,34*(4--room in active party),4--room in active party,1)
+put slice screen(heroPartySl,20,0)
+realign slice(heroPartySl,edge:left,edge:middle,edge:left,edge:middle)
+cursorSl:= create rect(51,32)
+set rect raw border(cursorSl,2)
+set rect trans(cursorSl,trans:hollow)
+for(varI,0,3--room in active party,1) do(
+if(hero by slot(varI) <> -1) then(
+interimSliceVal := load slice collection(1)
+heroImageSetup(hero by slot(varI),interimSliceVal)
+set parent(interimSliceVal,heroPartySl)
+set slice extra(slice child(slice child(heroPartySl,varI)),0,hero by slot(varI))
+))
+positionVal := 0
+put slice(cursorSl,slice screen x(slice child(heroPartySl,positionVal)),slice screen y(slice child(heroPartySl,positionVal)))
+cursorMover
+selectedSliceConstruct(positionVal)
+while(heroPartySl) do(
+	if(key is pressed(key:left)||key is pressed(key:up)) then(
+	if(positionVal == 0) then(
+		positionVal := 3--room in active party
+	)
+	else(
+		positionVal -= 1
+	)
+	chosenHero := get slice extra(slice child(slice child(heroPartySl,positionVal)),0)
+	selectedSliceConstruct(chosenHero,setupVal)
+	cursorMover
+	)
+	if(key is pressed(key:right)||key is pressed(key:down)) then(
+	if(positionVal == 3 -- room in active party) then(
+		positionVal := 0
+		)
+	else(
+		positionVal += 1
+	)
+	chosenHero := get slice extra(slice child(slice child(heroPartySl,positionVal)),0)
+	selectedSliceConstruct(chosenHero,setupVal)
+	cursorMover
+	)
+	if(keyval(key:Space) == 3 || keyval(key:Ctrl) == 3|| keyval(key:Enter) == 3) then(
+	setupVal := not(setupVal)
+	selectedSliceConstruct(chosenHero,setupVal)
+	)
+	if(key is pressed(key:Esc)) then(
+	partyViewCleanup
+	exit script
+	)
+	wait(1)
+	)
+	subscript,cursorMover,begin
+	variable(sliceToSelect,currSlX,currSlY)
+	sliceToSelect := slice child(heroPartySl,positionVal)
+	currSlX := slice screen x(sliceToSelect)
+	currSlY := slice screen y(sliceToSelect)
+	move slice to(cursorSl,currSlX,currSlY,2)
+	wait for slice(cursorSl)
+	end
+	
+	subscript,partyViewCleanup,begin
+	free slice(cursorSl)
+	cursorSl := 0
+	free slice(heroPartySl)
+	heroPartySl := 0
+	free slice(interHeroViewSl)
+	interHeroViewSl := 0
+	free slice(bgSl)
+	bgSl := 0
+	end
+	
+
+#--^
+end
+
+	script,heroImageSetup,whichHero,whichSlice,heroOrCard=0,forSell=0,begin
+	#does slightly different stuff if used to set up a card or to set up a hero
+	#whichHero: hero number if heroOrCard is 0, slice child number otherwise
+	#--V
+
+	variable(heroPosition,hImSl,stCull,whichMonster,whichRank,whichGrade)
+	hImSl := slice child(whichSlice)
+	if((heroOrCard)) then(
+	whichMonster := get slice extra(slice child(cardList,whichHero),0)
+	whichRank := get slice extra(slice child(cardList,whichHero),2)
+	whichGrade := get slice extra(slice child(cardList,whichHero),1)
+	)
+	else(heroPosition := find hero(whichHero))
+	#name
+	if(heroOrCard) then(monsterNameLookup(whichMonster,whichRank))
+	else(get hero name(15,heroPosition))
+	if(string length(15) > 6) then(stCull := 1)
+	while(string length(15) > 6) do(
+	delete char(15,string length(15))
+	)
+	if(stCull) then($15+".")
+	set slice text(slice child(hImSl,0),15)
+	$20 = ""
+	#rank
+	if(heroOrCard) then(
+	append number(20,whichRank)
+	append ascii(20,240)
+	set slice text(slice child(hImSl,2),20)
+	)
+	else(
+	append number(20,get hero level(find hero(whichHero)))
+	set slice text(slice child(hImSl,2),20))
+	$20 = ""
+	#grade
+	if(heroOrCard) then(
+	append number(20,whichGrade)
+	set slice text(slice child(hImSl,3),20)
+	)
+	else(
+	append number(20,get slice extra(slice child(currHeroList,whichHero),2))
+	set slice text(slice child(hImSl,3),20)
+	)
+	if(heroOrCard) then(
+	replace walkabout sprite(slice child(slice child(hImSl,1)),monsterImageLookupBase(whichMonster,whichRank,0),monsterImageLookupBase(whichMonster,whichRank,1)))
+	else(
+	replace walkabout sprite(slice child(slice child(hImSl,1)),get hero picture(heroPosition,outside battle))
+	set sprite palette(slice child(slice child(hImSl,1)),get hero palette(heroPosition,outside battle)))
+	if(heroOrCard) then(
+	$20 = ""
+	if(forSell) then(append number(20,monsterCostLookup(whichMonster,whichRank,whichGrade)/4))
+	else(append number(20,monsterCostLookup(whichMonster,whichRank,whichGrade)))
+	set slice text(slice child(hImSl,4),20)
+	)
+	#--^
+	end
+
+	script,cardCompactShow,whichCard,begin
+	variable(interimSl,currCardMType,currCardMGrade,currCardMRank,interimSliceVal,cardSl)
+	cardSl := slice child(cardList,whichCard)
+	interimSl := load slice collection(7)
+	currCardMType := get slice extra(cardSl,0) #monsterType
+		currCardMGrade := get slice extra(cardSl,1) #monsterGrade
+		currCardMRank := get slice extra(cardSl,2) #whichRank
+		interimSliceVal := slice child(slice child(interimSl))
+		monsterNameLookup(currCardMType,currCardMRank)
+		set slice text(slice child(interimSliceVal,0),15)
+		monsterImageLookup(currCardMType,currCardMRank,slice child(slice child(interimSliceVal,1)))
+		$17 = ""
+		append number(17,currCardMGrade)
+		set slice text(slice child(interimSliceVal,2),17)
+		$17 = ""
+		append number(17,currCardMRank)
+		append ascii(17,240)
+		set slice text(slice child(interimSliceVal,3),17)
+	end
+	
+	script,selectedSliceConstruct,whichHero,whichType=0,begin
+	#--V
+	#similar to monsterCardSetup but not quite
+	variable(interimSliceVal,heroPosition,heroDataSlice,currHeroMRank,currHeroMGrade,currHeroMType,varI,varJ)
+	variable(skillVal)
+	#set image
+	#show level/grade/exp to next
+	#show stats
+	#show skills
+	if(interHeroViewSl) then(
+	free slice(interHeroViewSl)
+	interHeroViewSl := 0
+	)
+	if(whichType == 0) then(interHeroViewSl := load slice collection(4))
+	else(interHeroViewSl := load slice collection(5))
+	heroPosition := find hero(whichHero)
+	heroDataSlice := slice child(currHeroList,whichHero)
+	set slice x(interHeroViewSl,230)
+		currHeroMType := get slice extra(heroDataSlice,0) #monsterType
+		currHeroMRank := get slice extra(heroDataSlice,1) #whichRank
+		currHeroMGrade := get slice extra(heroDataSlice,2) #monsterGrade
+
+	for(varI,1,4,1) do(
+		interimSliceVal := slice child(slice child(interHeroViewSl),varI)
+	switch(varI) do(
+		case(1) do( #name/grade/level/exp
+			get hero name(15,heroPosition)
+			gradeValueGet(currHeroMGrade)
+			set slice text(slice child(interimSliceVal,0),15)
+			set slice text(slice child(interimSliceVal,1),16)
+			$17 = ""
+			append number(17,currHeroMGrade)
+			set slice text(slice child(interimSliceVal,2),17)
+			$17 = ""
+			append number(17,get hero level(heroPosition))
+			set slice text(slice child(interimSliceVal,3),17)
+			$17 = ""
+			if(get hero level(heroPosition) > 19) then(
+			$17 = "N/A"
+			)		
+			else(
+			append number(17,experience to next level(heroPosition))
+			)
+			set slice text(slice child(interimSliceVal,4),17)
+			)
+		case(2) do( #picture
+			monsterImageLookup(currHeroMType,currHeroMRank,slice child(interimSliceVal))
+			
+			)
+		case(3) do( #stats/#resistances
+			if(whichType == 0) then(
+			for(varJ,0,6,1) do(
+			$10 = ""
+				if(varJ > 3) then(append number(10,get hero stat(heroPosition,varJ+2,current stat)))
+				else if(varJ > 2) then(append number(10,get hero stat(heroPosition,varJ+1,current stat)))
+				else(append number(10,get hero stat(heroPosition,varJ,current stat)))
+				set slice text(slice child(interimSliceVal,varJ),10)
+				)
+			)
+			else if(whichType == 1) then(
+			for(varJ,0,6,1) do(
+			$10 = ""
+				append number(10,hero total elemental resist as int(heroPosition,varJ))
+				$10 + "%"
+				set slice text(slice child(interimSliceVal,varJ),10)
+				)
+			)
+			)
+		case(4) do( #skills
+		if(whichType == 0) then(
+			for(varJ,0,2,1) do(
+			skillVal := read spell(heroPosition,0,varJ)
+				if(skillVal <> 0) then(read attack name(18,skillVal))
+					else($18 = "")
+				set slice text(slice child(interimSliceVal,varJ),18)	
+				)
+			)
+			)
+		)
+	)
+	
+		subscript,enemyStatShow,whichMonster,whichStat,whichRank,begin
+		variable(statVal,varS)
+		statVal := StatLookup(whichMonster,whichStat,whichRank)
+		#use $10 for this
+		$10 = ""
+		if(statVal > 1) then(for(varS,1,statVal/2,1) do(append ascii(10,255)))
+		if(statVal,mod,2 == 1) then(append ascii(10,254))
+		if(string length(10) < 7) then(
+		for(varS,string length(10),6,1) do(append ascii(10,253))
+		)
+		end
+	#--^
+	end
+	
+	
+	
+	plotscript,areaSlSetup,replaceHerosOnly=0,begin
+	#if replaceHerosOnly,does that
+	#--V
+	variable(varI,interimSl,interimTxt,currHeroHP,maxHeroHP)
+	#set up various stuff 
+	if(replaceHerosOnly) then(
+	free slice children(slice child(slice child(areaUIHandle,1),0))
+	free slice children(slice child(slice child(areaUIHandle,1),1))
+	heroUISetup
+	)
+	else(
+	areaUIHandle := load slice collection(6)
+	#1. party stuff
+	heroUISetup
+	)
+	#--^
+		subscript,heroUISetup,begin
+			for(varI,0,3--room in active party,1) do(
+		interimSl := load walkabout sprite(get hero picture(varI,outside battle),get hero palette(varI,outside battle))
+		set parent(interimSl,slice child(slice child(areaUIHandle,1),0))
+		interimTxt := create text
+		set parent(interimTxt,slice child(slice child(areaUIHandle,1),1))
+		$2 = "%d/\n %d"
+		currHeroHP := get hero stat(varI,stat:HP,current stat)
+		maxHeroHP := get hero stat(varI,stat:HP,maximum stat)
+		string sprintf(1,2,currHeroHP,maxHeroHP)
+		set slice text(interimTxt,1)
+		)
+		end
+	end
+	
+		script,textChanger,begin
+	variable(varI,varC,sizeMax,interimTextSl,cardCount)
+	for(varC,0,2,1) do(
+	interimTextSl:= slice child(slice child(areaUIHandle,2),varC)
+	
+	$2 = ""
+	#xp
+	if(varC == 0) then(
+	append number(2,interimExp)
+	)
+	#money
+	if(varC == 1) then(
+	append number(2,interimMoney)
+	)
+	#spirits
+	if(varC == 2) then(
+	cardCount := child count(interimCards)
+	if(cardCount > 7) then(sizeMax := 7)
+	else(sizeMax := cardCount)
+	for(varI,1,sizeMax,1) do(
+	append ascii(2,244)
+	)
+	)
+	set slice text(interimTextSl,2)
+	)
+	end
+
+	plotscript,intermissionUISetup,moneySetOnly=0,begin
+	if(not(moneySetOnly)) then(
+	if(areaUIHandle) then(
+	free slice(areaUIHandle)
+	areaUIHandle := 0
+	)
+	areaUIHandle := load slice collection(9)
+	)
+	areaSlSetup(1)
+	$20 = ""
+	append number(20,party money)
+	set slice text(slice child(slice child(areaUIHandle,2)),20)
+	end

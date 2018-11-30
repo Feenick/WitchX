@@ -1,0 +1,1136 @@
+#constants
+#--V
+#monster types
+#--V
+#variants are defined through the rank!
+define constant(1,M_pumpkin) #1,2,3,4
+define constant(2,M_slime) #1,2,3,4
+define constant(3,M_batty) #1,2,3,4
+define constant(4,M_Wisp) #1,2,3,4
+define constant(5,M_Mandrake) #1,2,3,4
+define constant(6,M_MiniDevil) #1,2,3,4
+define constant(7,M_Shadow) #1,2,3,4
+define constant(8,M_Puppet) #1,2,3,4
+define constant(9,M_Mush) #1,2,3,4
+define constant(10,M_Dryad) #2,3,4,5
+define constant(11,M_DragonHead) #1,2,3,4
+define constant(12,M_Golem) #2,3,4,6
+define constant(13,M_DragonZombie) #2,3,4,5
+define constant(14,M_Skeleton) #1,2,3,4
+define constant(15,M_WGhost) #1,2,3,4
+define constant(16,M_MGhost) #1,2,3,4
+define constant(17,M_HGhost) #1,2,3,4
+define constant(18,M_HuntShadow) #2,3,4,5
+define constant(19,M_Werewolf) #2,3,4,5
+define constant(20,M_Harpy) #2,3,4,5
+define constant(21,M_Venodevil) #3,4,5,6
+define constant(22,M_Greatdevil) #3,4,5,6
+define constant(23,M_Vampire) #3,4,5,6
+define constant(24,M_SDragon) #3,4,5,6
+define constant(25,E_Coin) #1,2,3,4
+define constant(26,E_Sword) #1,2,3,4
+define constant(27,E_Shield) #1,2,3,4
+define constant(28,E_Gold) #1,2,3,4
+define constant(99,B_Keeper)
+define constant(100,B_Verdi)
+define constant(101,B_Norn)
+define constant(102,B_Carmilla)
+define constant(103,B_BigSlime) #2,3,4,5
+define constant(104,B_GiantSlime) #2,3,4,5
+define constant(105,B_KingSlime) #3,4,5,6
+define constant(106,B_Behemoth) 
+define constant(200,M_slimeweak) #1,2,3,4; lower HP, defense than real slimes
+define constant(999,H_Wyrd) #hero stats for intro fight
+#--^
+#stat names for 
+
+
+#--^
+script,StatLookup,whichMonster,whichStat,whichRank=1,begin
+variable(returnStat)
+#stats go from 1-14; stats by level are (base + growth rate*level)*((100+grade+10*rank))/100
+#base is (growth rate*10)*((100+grade+10*rank))/100
+#hp is double this value
+#--V
+switch(whichMonster) do(
+	case(M_pumpkin) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 1+whichRank
+	case(stat:MP) returnStat := 2
+	case(stat:ATK) returnStat := 1
+	case(stat:DEF) returnStat := 1
+	case(stat:MAG) returnStat := 2
+	case(stat:MDF) returnStat := 2+whichRank/2
+	case(stat:SPD) returnStat := 1
+	)
+	)
+	#--^
+	
+	
+	case(M_slime) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) do(
+		switch(whichRank) do(
+		case(1,2) returnStat := 5
+		case(3) returnStat := 6
+		case(4) returnStat := 7
+		))
+	case(stat:MP) returnStat := 3
+	case(stat:ATK) do(
+		switch(whichRank) do(
+		case(1,2) returnStat := 2
+		case(3,4) returnStat := 3
+		))
+	case(stat:DEF) do(
+		switch(whichRank) do(
+		case(1) returnStat := 2
+		case(2,3) returnStat := 3
+		case(4) returnStat := 4
+		))
+	case(stat:MAG) returnStat := 1
+	case(stat:MDF) returnStat := 2
+	case(stat:SPD) do( 
+		switch(whichRank) do(
+		case(1,2) returnStat := 1
+		case(3,4) returnStat := 2
+		))
+	)
+	#--^
+	)
+
+	case(M_batty) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 2
+	case(stat:MP) returnStat := 2
+	case(stat:ATK) returnStat := 3
+	case(stat:DEF) returnStat := 1
+	case(stat:MAG) do(
+		switch(whichRank) do(
+			case(1,2) returnStat := 1
+			case(3) returnStat := 3
+			case(4) returnStat := 6
+	))
+	case(stat:MDF) returnStat := 2
+	case(stat:SPD) returnStat := 4 + whichRank
+	)
+	#--^
+	)
+	case(M_Wisp) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 2+whichRank/2
+	case(stat:MP) returnStat := 3+whichRank
+	case(stat:ATK) returnStat := 2
+	case(stat:DEF) returnStat := 1
+	case(stat:MAG) returnStat := 3+whichRank
+	case(stat:MDF) returnStat := 2+whichRank/2
+	case(stat:SPD) returnStat := 3+whichRank/2
+	)
+	#--^
+	)
+	
+	case(M_Mandrake) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 2+whichRank/2
+	case(stat:MP) returnStat := 2
+	case(stat:ATK) returnStat := 2+whichRank/2
+	case(stat:DEF) returnStat := 1+whichRank
+	case(stat:MAG) returnStat := 2
+	case(stat:MDF) returnStat := 3+whichRank
+	case(stat:SPD) returnStat := 1
+	)
+	#--^
+	)
+	
+	case(M_MiniDevil) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 3+whichRank/2
+	case(stat:MP) returnStat := 1+whichRank
+	case(stat:ATK) returnStat := 3+whichRank/2
+	case(stat:DEF) returnStat := 1+whichRank
+	case(stat:MAG) returnStat := 2
+	case(stat:MDF) returnStat := 1+whichRank/2
+	case(stat:SPD) returnStat := 3 + whichRank/2
+	)
+	#--^
+	)
+	
+	case(M_Shadow) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 3 + whichRank/2
+	case(stat:MP) returnStat := 1+(whichRank+1)/2
+	case(stat:ATK) returnStat := 1+whichRank/2
+	case(stat:DEF) returnStat := 1
+	case(stat:MAG) returnStat := 1+whichRank
+	case(stat:MDF) returnStat := 2 +whichRank
+	case(stat:SPD) returnStat := 3+whichRank/2
+	)
+	#--^
+	)	
+	case(B_Keeper) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 4 + whichRank
+	case(stat:MP) returnStat := 4+(whichRank+1)/2
+	case(stat:ATK) returnStat := 2+whichRank/2
+	case(stat:DEF) returnStat := 2+whichRank
+	case(stat:MAG) returnStat := 4+whichRank
+	case(stat:MDF) returnStat := 2 +whichRank
+	case(stat:SPD) returnStat := 2
+	)
+	)
+	#--^
+	case(B_BigSlime) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 8 + whichRank
+	case(stat:MP) returnStat := 1+(whichRank+1)/2
+	case(stat:ATK) returnStat := 1+whichRank/2
+	case(stat:DEF) returnStat := 4+whichRank
+	case(stat:MAG) returnStat := 1+whichRank
+	case(stat:MDF) returnStat := 2 +whichRank
+	case(stat:SPD) returnStat := 3+whichRank/2
+	)
+	#--^
+	)	
+	case(B_GiantSlime) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 8+whichRank*2
+	case(stat:MP) returnStat := 1+(whichRank+1)/2
+	case(stat:ATK) returnStat := 4+whichRank
+	case(stat:DEF) returnStat := 5+whichRank
+	case(stat:MAG) returnStat := 1+whichRank
+	case(stat:MDF) returnStat := 4 +whichRank/2
+	case(stat:SPD) returnStat := 1+whichRank/2
+	)
+	#--^
+	)	
+	case(H_Wyrd) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 5
+	case(stat:MP) returnStat := 6
+	case(stat:ATK) returnStat := 2
+	case(stat:DEF) returnStat := 2
+	case(stat:MAG) returnStat := 8
+	case(stat:MDF) returnStat := 4
+	case(stat:SPD) returnStat := 3
+	)
+	#--^
+	)
+	case(M_slimeweak) do(
+	#--V
+	switch(whichStat) do(
+	case(stat:HP) returnStat := 3+whichRank/2
+	case(stat:MP) returnStat := 3
+	case(stat:ATK) returnStat := 2 + whichRank/2
+	case(stat:DEF) returnStat := 2 + whichRank
+	case(stat:MAG) returnStat := 2
+	case(stat:MDF) returnStat := 1 + whichRank/2
+	case(stat:SPD) returnStat := 2
+	)
+	#--^
+	)
+)
+exit returning(returnStat)
+#--^
+end
+
+script,skillLookup,whichMonster,whichSkill,whichRank=1,begin
+#each monster gets three skills except for monsters that are really meant to be enemy-only
+#--V
+switch(whichMonster) do(
+	case(M_pumpkin) do(
+	switch(whichSkill) do(
+	case(0) exit returning(atk:÷Fire I + whichRank --1)
+	case(1) exit returning(atk:úHeal I + whichRank --1)
+	case(2) exit returning(-1)
+	))
+	case(M_slime) do(
+		switch(whichSkill) do(
+		case(0) do(
+			if(whichRank > 2) then(exit returning (atk:ñSlow II))
+			else(exit returning(atk:ñSlow I))
+			)
+		case(1) exit returning(atk:úHeal I)
+		case(2) exit returning(-1)
+		))
+	case(M_batty) do(
+		switch(whichSkill) do(
+		case(0) exit returning(atk:õFang I + whichRank--1)
+		case(1) exit returning(atk:üScreech)
+		case(2) exit returning(-1)
+		))
+	case(M_Wisp) do(
+		switch(whichSkill) do(
+		case(0) exit returning(atk:÷Fire II)
+		case(1) exit returning(atk:òMAG I + whichRank/3)
+		case(2) do(if(whichRank >2) then(exit returning(atk:ûDark I + whichRank*2--1)) #Dark VI for 3,Dark VIII for 4 
+		else(exit returning(-1))
+				)
+		))
+	case(M_Mandrake) do(
+		switch(whichSkill) do(
+		case(0) exit returning(atk:úHeal I + whichRank*2)
+		case(1) exit returning(atk:üCry I)
+		case(2) do(
+			switch(whichRank) do(
+			case(1) exit returning(-1)
+			case(2) exit returning(atk:úMP Gen I)
+			case(3) exit returning(atk:ñATK II)
+			case(4) exit returning(atk:úRevive I)
+			))
+		))
+	case(M_MiniDevil) do(
+		switch(whichSkill) do(
+		case(0) exit returning(atk:ùElec II + whichRank*2--2)
+		case(1) exit returning(atk:ñMP Cut I + whichRank/3)
+		case(2) do(
+		switch(whichRank) do(
+			case(1) exit returning(atk:ñDEF I)
+			case(2) exit returning(atk:ûGrav I)
+			case(3) exit returning(atk:òMAG II)
+			case(4) exit returning(atk:øStyxia)
+			))
+		))
+	case(M_Shadow) do(
+		switch(whichSkill) do(
+		case(0) exit returning(atk:ûDark I+whichRank*2)
+		case(1) exit returning(atk:öSlash I+whichRank--1)
+		case(2) if(whichRank >2) then(exit returning(atk:ûGrav II)) else(exit returning(-1))
+		))	
+	case(M_Puppet) do(
+		switch(whichSkill) do(
+		case(0) do(
+			switch(whichRank) do(
+			case(1) exit returning(atk:÷Fire III)
+			case(2) exit returning(atk:÷Fire V)
+			case(3) exit returning(atk:úLux VII)
+			case(4) exit returning(atk:ùElec IX)
+			))
+		case(1) do(
+			switch(whichRank) do(
+			case(1) exit returning(atk:òMAG I)
+			case(2) exit returning(atk:òMDF II)
+			case(3) exit returning(atk:òMDF III)
+			case(4) exit returning(atk:òMAG III)
+			))
+		case(2) do(
+			switch(whichRank) do(
+			case(1) exit returning(atk:ñMDF I)
+			case(2) exit returning(atk:ûGrav I)
+			case(3) exit returning(atk:ûGrav II)
+			case(4) exit returning(atk:ùWCannon)
+			))
+		))
+	case(M_Mush) do(
+		switch(whichSkill) do(
+		case(0) exit returning(-1)
+		case(1) exit returning(-1)
+		case(2) exit returning(-1)
+		))		
+	case(M_DragonHead) do(
+		switch(whichSkill) do(
+		case(0) exit returning(atk:÷Fire I+whichRank*2)
+		case(1) exit returning(atk:õFire Fang)
+		case(2) if(whichRank > 2) then(exit returning(atk:õFang I+whichRank)) else(exit returning(-1))
+		))		
+	case(H_Wyrd) do(
+		switch(whichSkill) do(
+		case(0) exit returning(atk:ùElec VI)
+		case(1) exit returning(atk:úHeal IV)
+		case(2) exit returning(atk:ñATK I)
+		)
+		
+		)
+	)
+	#--^
+end
+
+script,monsterImageLookup,whichMonster,whichRank,sliceToReplace,begin
+#each monster has a small enemy sprite that represents them for the cards
+#this gets the right one for them
+switch(whichMonster) do(
+	case(M_pumpkin) do(
+		switch(whichRank) do(
+		case(1) replace small enemy sprite(sliceToReplace,6,20)
+		case(2) replace small enemy sprite(sliceToReplace,9,21)
+		case(3) replace small enemy sprite(sliceToReplace,7,20)
+		case(4) replace small enemy sprite(sliceToReplace,12,20)
+		)
+		)
+	case(M_slime) do(
+		switch(whichRank) do(
+		case(1) replace small enemy sprite(sliceToReplace,1,10)
+		case(2) replace small enemy sprite(sliceToReplace,1,11)
+		case(3) replace small enemy sprite(sliceToReplace,3,12)
+		case(4) replace small enemy sprite(sliceToReplace,4,13)
+		)	
+	)
+	case(M_batty) do(
+		switch(whichRank) do(
+		case(1) replace small enemy sprite(sliceToReplace,0,6)
+		case(2) replace small enemy sprite(sliceToReplace,0,7)
+		case(3) replace small enemy sprite(sliceToReplace,0,8)
+		case(4) replace small enemy sprite(sliceToReplace,0,9)
+		)
+	)
+	case(M_Wisp) do(
+		switch(whichRank) do(
+		case(1) replace small enemy sprite(sliceToReplace,5,15)
+		case(2) replace small enemy sprite(sliceToReplace,5,16)
+		case(3) replace small enemy sprite(sliceToReplace,5,17)
+		case(4) replace small enemy sprite(sliceToReplace,5,18)
+		)	
+	
+	)
+	
+)
+end
+
+script,monsterHeroImageLookup,whichMonster,whichRank,whichHero,begin
+variable(heroPosition)
+heroPosition := find hero(whichHero)
+switch(whichMonster) do(
+	case(M_pumpkin) do(
+		switch(whichRank) do(
+			case(1) heroImagePlusPalSet(8,13,20)
+			case(2) heroImagePlusPalSet(9,14,21)
+			case(3) heroImagePlusPalSet(10,15,20)
+			case(4) heroImagePlusPalSet(10,15,20)
+			))
+	case(M_slime) do(
+		switch(whichRank) do(
+			case(1) heroImagePlusPalSet(1,1,10)
+			case(2) heroImagePlusPalSet(1,1,11)
+			case(3) heroImagePlusPalSet(3,3,12)
+			case(4) heroImagePlusPalSet(4,4,13)
+			))
+	case(M_Batty) do(
+		switch(whichRank) do(
+			case(1) heroImagePlusPalSet(2,2,6)
+			case(2) heroImagePlusPalSet(2,2,7)
+			case(3) heroImagePlusPalSet(2,2,8)
+			case(4) heroImagePlusPalSet(2,2,9)
+			))
+	case(M_Wisp) do(
+		switch(whichRank) do(
+			case(1) heroImagePlusPalSet(6,10,15)
+			case(2) heroImagePlusPalSet(6,10,16)
+			case(3) heroImagePlusPalSet(6,10,17)
+			case(4) heroImagePlusPalSet(6,10,18)
+			))
+	case(H_Wyrd) do(
+		heroImagePlusPalSet(5,9,2)
+			)
+
+	)
+	
+	subscript,heroImagePlusPalSet,insideGraphic,outsideGraphic,paletteToSet,begin
+	set hero picture(heroPosition,insideGraphic,inside battle)
+	set hero picture(heroPosition,outsideGraphic,outside battle)
+	set hero palette(heroPosition,paletteToSet,inside battle)
+	set hero palette(heroPosition,paletteToSet,outside battle)
+	end
+end
+
+script,monsterImageLookupBase,whichMonster,whichRank,imgOrPal,begin
+#out of battle image only
+variable(imgVal,palVal)
+switch(whichMonster) do(
+	case(M_pumpkin) do(
+		switch(whichRank) do(
+			case(1) do(imgVal := 13
+						palVal := 20)
+			case(2) do(imgVal := 14
+						palVal := 21)
+			case(3) do(imgVal := 15
+						palVal := 20)
+			case(4) do(imgVal := 15
+						palVal := 20)
+			))
+	case(M_slime) do(
+		switch(whichRank) do(
+			case(1) do(imgVal := 1
+						palVal := 10)
+			case(2) do(imgVal := 1
+						palVal := 11)
+			case(3) do(imgVal := 3
+						palVal := 12)
+			case(4) do(imgVal := 4
+						palVal := 13)
+			))
+	case(M_Batty) do(
+		imgVal := 2
+		switch(whichRank) do(
+			case(1) palVal := 6
+			case(2) palVal := 7
+			case(3) palVal := 8
+			case(4) palVal := 9
+			))
+	case(M_Wisp) do(
+		imgVal := 10
+		palVal := whichRank + 14)
+	case(H_Wyrd) do(
+		imgVal := 9
+		palVal := 2
+	)
+	)
+if(imgOrPal) then(exit returning(palVal)) else(exit returning(imgVal))
+end
+
+
+script,monsterElementalLookup,whichMonster,whichRank,whichElement,begin
+variable(ePercent)
+ePercent := 100 #failsafe
+switch(whichMonster) do(
+	case(M_pumpkin) do(
+	switch(whichElement) do(
+		case(element:Fire) ePercent := 200
+		case(element:Ice) ePercent := 200
+		case(element:Volt) ePercent := 50
+		case(element:Dark) ePercent := 50
+		case(element:Slash) ePercent := 125
+		case(element:Pierce) ePercent := 100
+		case(else) ePercent := 100
+	)
+	)
+	case(M_Slime) do(
+	switch(whichElement) do(
+		case(element:Volt) ePercent := 50
+		case(element:Slash) ePercent := 150
+		case(element:Poison) ePercent := 0
+		case(else) ePercent := 100
+	)
+	)
+	case(M_Batty) do(
+	switch(whichElement) do(
+		case(element:Volt) ePercent := 150
+		case(element:Lux) ePercent := 150
+		case(element:Dark) ePercent := 50
+		case(element:Pierce) ePercent := 150
+		case(else) ePercent := 100
+	))
+	case(M_Wisp) do(
+	switch(whichElement) do(
+		case(element:Fire) ePercent := -100
+		case(element:Ice) ePercent := 200 -- (whichRank--1)*15
+		case(element:Lux) do(if(whichRank > 2) then(ePercent := 50)
+		else(ePercent := 0))
+		case(element:Dark) do(if(whichRank > 2) then(ePercent := 50)
+		else(ePercent := 150))
+		case(else) ePercent := 100
+	))
+	case(M_Mandrake) do(
+	switch(whichElement) do(
+		case(element:Fire) ePercent := 200 -- (whichRank--1)*15
+		case(element:Ice) ePercent := 150
+		case(element:Poison) ePercent := 50
+		case(element:Paralysis) ePercent := 50
+		case(element:Mute) ePercent := 50
+		case(element:Gravity) ePercent := 50
+		case(element:MP Drain) ePercent := 50
+		case(element:HP Drain) ePercent := 50
+		case(else) ePercent := 100
+	))
+	case(M_MiniDevil) do(
+	switch(whichElement) do(
+		case(element:Fire) ePercent := 100
+		case(element:Ice) ePercent := 100
+		case(element:Volt) ePercent := 100
+		case(element:Lux) ePercent := 200 -- (whichRank--1)*15
+		case(element:Dark) ePercent := 50
+		case(element:Slash) ePercent := 100
+		case(element:Poison) ePercent := 75
+		case(element:Mute) ePercent := 150
+		case(element:Death) do(if(whichRank == 4) then(ePercent := 0)
+		else(ePercent := 100))
+		case(else) ePercent := 100
+	))
+	case(M_Shadow) do(
+	switch(whichElement) do(
+		case(element:Lux) do(
+		if(whichRank == 4) then(ePercent := -100)
+		else(ePercent := 200))
+		case(element:Dark) do(
+		if(whichRank == 4) then(ePercent := 200)
+		else(ePercent := -100))
+		case(element:Paralysis) ePercent := 75
+		case(element:Mute) ePercent := 50
+		case(element:Death) ePercent := 100
+		case(else) ePercent := 100
+	))	
+	case() do(
+	switch(whichElement) do(
+		case(element:Fire) ePercent := 100
+		case(element:Ice) ePercent := 100
+		case(element:Volt) ePercent := 100
+		case(element:Lux) ePercent := 100
+		case(element:Dark) ePercent := 100
+		case(element:Slash) ePercent := 100
+		case(element:Pierce) ePercent := 100
+		case(element:Phys) ePercent := 100
+		case(element:Magic) ePercent := 100
+		case(element:Poison) ePercent := 100
+		case(element:Paralysis) ePercent := 100
+		case(element:Mute) ePercent := 100
+		case(element:Gravity) ePercent := 100
+		case(element:MP Drain) ePercent := 100
+		case(element:HP Drain) ePercent := 100
+		case(element:Death) ePercent := 100
+		case(else) ePercent := 100
+	))	
+)
+exit returning(ePercent)
+end
+
+
+script,monsterRewardLookup,whichMonster,whichRank,whichLevel,whichToGet,begin
+#whichToGet: 0 is xp, 1 is money; so top is money, bottom is xp
+#--V
+variable(interimRewardVal)
+switch(whichMonster) do(
+	case(M_pumpkin) do(
+		if(whichToGet) then(interimRewardVal := 1*whichRank*whichRank)
+		else(interimRewardVal := 3*whichRank*whichRank)
+	)
+	case(M_slime,M_slimeweak) do(
+		if(whichToGet) then(interimRewardVal := 3*whichRank*whichRank)
+		else(interimRewardVal := 3*whichRank*whichRank)
+		)
+	case(M_Batty) do(
+		if(whichToGet) then(interimRewardVal := 4*whichRank*whichRank)
+		else(interimRewardVal := 3*whichRank*whichRank)
+		)
+	case(M_Wisp) do(
+		if(whichToGet) then(interimRewardVal := 2*whichRank*whichRank)
+		else(interimRewardVal := 4*whichRank*whichRank)
+		)
+	case(M_Mandrake) do(
+		if(whichToGet) then(interimRewardVal := 3*whichRank*whichRank)
+		else(interimRewardVal := 4*whichRank*whichRank)
+		)
+	case(M_MiniDevil) do(
+		if(whichToGet) then(interimRewardVal := 5*whichRank*whichRank)
+		else(interimRewardVal := 4*whichRank*whichRank)
+		)
+	case(M_Shadow) do(
+		if(whichToGet) then(interimRewardVal := 2*whichRank*whichRank)
+		else(interimRewardVal := 6*whichRank*whichRank)
+		)
+	case(M_Puppet) do(
+		if(whichToGet) then(interimRewardVal := 5*whichRank*whichRank)
+		else(interimRewardVal := 5*whichRank*whichRank)
+		)
+	case(M_Mush) do(
+		if(whichToGet) then(interimRewardVal := 2*whichRank*whichRank)
+		else(interimRewardVal := 3*whichRank*whichRank)
+		)
+	case(M_Dryad) do(
+		if(whichToGet) then(interimRewardVal := 1*whichRank*whichRank)
+		else(interimRewardVal := 6*whichRank*whichRank)
+		)		
+	case(M_DragonHead) do(
+		if(whichToGet) then(interimRewardVal := 5*whichRank*whichRank)
+		else(interimRewardVal := 4*whichRank*whichRank)
+		)		
+	case(M_Golem) do(
+		if(whichToGet) then(interimRewardVal := 6*whichRank*whichRank)
+		else(interimRewardVal := 6*whichRank*whichRank)
+		)		
+	case(M_DragonZombie) do(
+		if(whichToGet) then(interimRewardVal := 2*whichRank*whichRank)
+		else(interimRewardVal := 7*whichRank*whichRank)
+		)
+	case(M_Skeleton) do(
+		if(whichToGet) then(interimRewardVal := 3*whichRank*whichRank)
+		else(interimRewardVal := 6*whichRank*whichRank)
+		)
+	case(M_HuntShadow) do(
+		if(whichToGet) then(interimRewardVal := 4*whichRank*whichRank)
+		else(interimRewardVal := 7*whichRank*whichRank)
+		)
+	case(M_Werewolf) do(
+		if(whichToGet) then(interimRewardVal := 4*whichRank*whichRank)
+		else(interimRewardVal := 7*whichRank*whichRank)
+		)
+	case(M_Harpy) do(
+		if(whichToGet) then(interimRewardVal := 5*whichRank*whichRank)
+		else(interimRewardVal := 6*whichRank*whichRank)
+		)		
+	case(M_Venodevil) do(
+		if(whichToGet) then(interimRewardVal := 11*whichRank*whichRank)
+		else(interimRewardVal := 11*whichRank*whichRank)
+		)		
+	case(M_Greatdevil) do(
+		if(whichToGet) then(interimRewardVal := 10*whichRank*whichRank)
+		else(interimRewardVal := 12*whichRank*whichRank)
+		)		
+	case(M_Vampire) do(
+		if(whichToGet) then(interimRewardVal := 9*whichRank*whichRank)
+		else(interimRewardVal := 9*whichRank*whichRank)
+		)
+	case(M_SDragon) do(
+		if(whichToGet) then(interimRewardVal := 4*whichRank*whichRank)
+		else(interimRewardVal := 15*whichRank*whichRank)
+		)
+	case(B_Keeper) do(
+		if(whichToGet) then(interimRewardVal := 3*whichRank*whichRank)
+		else(interimRewardVal := 3*whichRank*whichRank)
+		)		
+	case(B_Verdi) do(
+		if(whichToGet) then(interimRewardVal := 4*whichRank*whichRank)
+		else(interimRewardVal := 4*whichRank*whichRank)
+		)		
+#	case() do(
+#		if(whichToGet) then(interimRewardVal := 2*whichRank*whichRank)
+#		else(interimRewardVal := 5*whichRank*whichRank)
+#		)				
+	)
+	
+exit returning(interimRewardVal*whichLevel)
+#--^
+end
+script,monsterSpiritLookup,whichMonster,whichRank,mLevel,whichRarity=1,begin
+#given the monster in question, generates the card
+variable(lowGrade,highGrade,fGrade,baseGrade)
+#for now, just do common
+
+switch(whichRarity) do(
+	case(1) do(
+	#common 1-50
+	baseGrade := 1+ mLevel
+	if(baseGrade > 30) then(
+	lowGrade := 30
+	highGrade := 50
+	)
+	else(
+	lowGrade := baseGrade
+	highGrade := baseGrade + 20
+	)
+	)
+	case(2) do(
+	#uncommon 51-75
+	baseGrade := 51+mLevel/2
+	if(baseGrade > 65) then(
+	lowGrade := 65
+	highGrade := 75
+	)
+	else(
+	lowGrade := baseGrade
+	highGrade := baseGrade + 10
+	)
+	)
+	case(3) do(
+	#rare 76-94
+	baseGrade := 76 + mLevel/3
+	if(baseGrade > 88) then(
+	lowGrade := 88
+	highGrade := 94
+	)
+	else(
+	lowGrade := baseGrade
+	highGrade := baseGrade + 6
+	)
+	)
+	case(4) do(
+	#ultra 95-99
+	baseGrade := 95
+	lowGrade := baseGrade
+	if(mLevel < 20) then(highGrade := 99)
+	else(highGrade := 95+mLevel/5)
+	)
+)
+fGrade := gradeGen(lowGrade,highGrade)
+monsterCardGen(whichMonster,whichRank,fGrade)
+trace value(whichMonster)
+end
+
+script,monsterItemRewardLookup,whichType,whichRank,commonOrRare,begin
+	switch(whichType) do(
+	case(M_pumpkin) exit returning(item:LOrb S)
+	case(M_batty) exit returning(item:LOrb S+whichRank/3)
+	case(else) exit returning(-1)  
+	
+	)
+
+end
+
+script,monsterCostLookup,whichMonster,whichRank,whichGrade,begin
+variable(costMult,interimCost,fCost)
+switch(whichMonster) do(
+case(M_pumpkin) costMult := 1
+case(M_Slime) costMult := 2
+case(M_Batty) costMult := 3
+case(M_Wisp) costMult := 3
+case(M_Mandrake) costMult := 2
+case(M_MiniDevil) costMult := 4
+case(M_Shadow) costMult := 4
+case(M_Puppet) costMult := 3
+case(M_Mush) costMult := 2
+case(M_Dryad) costMult := 4
+case(M_DragonHead) costMult := 3 
+case(M_Golem) costMult := 6
+case(M_DragonZombie) costMult := 7 
+case(M_Skeleton) costMult := 5
+case(M_WGhost) costMult := 4
+case(M_MGhost) costMult := 4
+case(M_HuntShadow) costMult := 5
+case(M_Werewolf) costMult := 4
+case(M_Harpy) costMult := 5
+case(M_Venodevil) costMult := 8
+case(M_Greatdevil) costMult := 8
+case(M_Vampire) costMult := 9
+case(M_SDragon) costMult := 10
+case(B_BigSlime) costMult := 5
+case(B_GiantSlime) costMult := 10
+case(else) costMult := 1
+)
+fCost := (100+whichGrade)*(2*whichRank--1)*costMult
+exit returning(fCost)
+end
+
+script,enemyTypeLookup,whichEnemy,begin
+switch(whichEnemy) do(
+case(0,29) exit returning(M_pumpkin)
+case(42,21,22,23) exit returning(M_Slime)
+case(2) exit returning(M_Batty)
+case(3) exit returning(M_Wisp)
+case(4) exit returning(M_Mandrake)
+case(5) exit returning(M_MiniDevil)
+case(6) exit returning(M_Shadow)
+case(7) exit returning(M_Puppet)
+case(8) exit returning(M_Mush)
+case(30) exit returning(B_Keeper)
+case(1) exit returning(M_slimeweak)
+case(else) exit returning(-1)
+)
+end
+
+script,enemyTypeLookupForCards,whichEnemy,begin
+switch(whichEnemy) do(
+case(0,29) exit returning(M_pumpkin)
+case(1,21,22,23,42) exit returning(M_Slime)
+case(2) exit returning(M_Batty)
+case(3) exit returning(M_Wisp)
+case(4) exit returning(M_Mandrake)
+case(5) exit returning(M_MiniDevil)
+case(6) exit returning(M_Shadow)
+case(7) exit returning(M_Puppet)
+case(8) exit returning(M_Mush)
+case(30) exit returning(B_Keeper)
+case(else) exit returning(-1)
+)
+end
+
+script,heroDataLookup,whichHero,whichData,whichSubData,begin
+variable(sliceBase,subBase,dataVal)
+sliceBase := slice child(currHeroList,whichHero)
+switch(whichData) do(
+case(0) do( #type/rank/grade
+		subBase := slice child(sliceBase,0)
+		dataVal := get slice extra(subBase,whichSubData)
+	)
+ #type,grade,rank
+case(1) do() #stat growths
+case(2) do()
+)
+end
+
+script,monsterNameLookup,whichMonster,whichRank,begin
+#throws the names to string $15
+$15 = ""
+switch(whichMonster) do(
+#--V
+	case(M_pumpkin) do(
+		switch(whichRank) do(
+		case(1) $15 = "Pumpkin"
+		case(2) $15 = "Gourd"
+		case(3) $15 = "Pumpkin Lord"
+		case(4) $15 = "Pumpking"
+		)
+	)
+	case(M_Slime) do(
+		switch(whichRank) do(
+		case(1) $15 = "Slime"
+		case(2) $15 = "Red Slime"
+		case(3) $15 = "Poison Slime"
+		case(4) $15 = "Dark Matter"
+		)
+	)
+	case(M_Batty) do(
+		switch(whichRank) do(
+		case(1) $15 = "Batty"
+		case(2) $15 = "Sr. Batty"
+		case(3) $15 = "Vampire Bat"
+		case(4) $15 = "Lunar Bat"
+		)
+	)
+	case(M_Wisp) do(
+		switch(whichRank) do(
+		case(1) $15 = "Wisp"
+		case(2) $15 = "Live Flame"
+		case(3) $15 = "Lampad"
+		case(4) $15 = "Hellfire"
+		)
+	)
+	case(M_Mandrake) do(
+		switch(whichRank) do(
+		case(1) $15 = "Mandrake"
+		case(2) $15 = "Une"
+		case(3) $15 = "Zaccu"
+		case(4) $15 = "Ygg Sprout"
+		)
+	
+	)
+	case(M_MiniDevil) do(#1,2,3,4
+		switch(whichRank) do(
+		case(1) $15 = "Mini Devil"
+		case(2) $15 = "Gremlin"
+		case(3) $15 = "Pike Devil"
+		case(4) $15 = "Stygian"
+		)
+	)
+	case(M_Shadow) do(#1,2,3,4
+		switch(whichRank) do(
+		case(1) $15 = "Shadow"
+		case(2) $15 = "Hellfrost"
+		case(3) $15 = "Wraith"
+		case(4) $15 = "Antishadow"
+		)
+	)
+	case(M_Puppet) do(#1,2,3,4
+		switch(whichRank) do(
+		case(1) $15 = "Puppet"
+		case(2) $15 = "Shadowdoll"
+		case(3) $15 = "Antique Mage"
+		case(4) $15 = "Automaton"
+		)
+	)
+	case(M_Mush) do(#1,2,3,4
+		switch(whichRank) do(
+		case(1) $15 = "Mush"
+		case(2) $15 = "Aminata"
+		case(3) $15 = "Hallu Mush"
+		case(4) $15 = "Deathspore"
+		)
+	)
+case(M_Dryad) do(#1,2,3,4
+		switch(whichRank) do(
+		case(1) $15 = "Dryad"
+		case(2) $15 = "Naeid"
+		case(3) $15 = "Alraune"
+		case(4) $15 = "Loci"
+		)
+	)
+case(M_DragonHead) do(#1,2,3,4
+		switch(whichRank) do(
+		case(1) $15 = "Dragonhead"
+		case(2) $15 = "Stonefang"
+		case(3) $15 = "Bonedragon"
+		case(4) $15 = "White Dragon"
+		)
+	)
+case(M_Golem) do(#2,3,4,5
+		switch(whichRank) do(
+		case(2) $15 = "Clay Golem"
+		case(3) $15 = "Stone Golem"
+		case(4) $15 = "Iron Golem"
+		case(5) $15 = "Adamant Golem"
+		)
+	)
+case(M_DragonZombie) do(#2,3,4,5
+		switch(whichRank) do(
+		case(2) $15 = "Dracozombie"
+		case(3) $15 = "Bone Dragon"
+		case(4) $15 = "Venodragon"
+		case(5) $15 = "Death Dragon"
+		)
+	)
+case(M_Skeleton) do(#1,2,3,4
+		switch(whichRank) do(
+		case(1) $15 = "Skeleton"
+		case(2) $15 = "Greyskull"
+		case(3) $15 = "Red Skeleton"
+		case(4) $15 = "Darkskull"
+		)
+	)
+case(M_WGhost) #1,2,3,4
+case(M_MGhost) #1,2,3,4
+case(M_HuntShadow) do(#2,3,4,5
+		switch(whichRank) do(
+		case(1) $15 = "Hunter Shadow"
+		case(2) $15 = "Flarebeast"
+		case(3) $15 = "Dreadhount"
+		case(4) $15 = "Pandaemonium"
+		)
+	)
+	
+case(M_Werewolf) #2,3,4,5
+case(M_Harpy) do(#2,3,4,5
+		switch(whichRank) do(
+		case(2) $15 = "Harpy"
+		case(3) $15 = "Stratoharpy"
+		case(4) $15 = "Exoharpy"
+		case(5) $15 = "Pluto Harpy"
+		)
+	)
+case(M_Venodevil) do(#3,4,5,6
+		switch(whichRank) do(
+		case(3) $15 = "Venodevil"
+		case(4) $15 = "Devil Lady"
+		case(5) $15 = "Devil Duchy"
+		case(6) $15 = "Empress Devil"
+		)
+	)
+case(M_Greatdevil) do(#3,4,5,6
+		switch(whichRank) do(
+		case(3) $15 = "Great Devil"
+		case(4) $15 = "Reaper Devil"
+		case(5) $15 = "Devil Lord"
+		case(6) $15 = "Emperor Devil"
+		)
+	)
+case(M_Vampire) do(#2,3,4,5
+		switch(whichRank) do(
+		case(2) $15 = "Lesser Vampire"
+		case(3) $15 = "Lady Vampire"
+		case(4) $15 = "Vampire Lord"
+		case(5) $15 = "Vampire Lady"
+		)
+	)
+case(M_SDragon) do(#3,4,5,6
+		switch(whichRank) do(
+		case(3) $15 = "Shadowdragon"
+		case(4) $15 = "Great Dragon"
+		case(5) $15 = "Black Dragon"
+		case(6) $15 = "Emperor Dragon"
+			)
+	)
+case(H_Wyrd) $15 = "Wyrd"
+#--^
+)
+end
+script,gradeValueGet,whichGrade,begin
+#uses $16 for grade value
+if(whichGrade > 94) then($16 = "Ultra")
+else if(whichGrade > 74) then($16 = "Rare")
+else if(whichGrade > 49) then($16 = "Uncom.")
+else($16 = "Com.")
+end
+
+
+script,enemyExpMultLookup,whichMonster,begin
+variable(xpMultVal)
+switch(whichMonster) do(
+	case(M_pumpkin) xpMultVal := 2
+	case(M_slime) xpMultVal := 2
+	case(M_batty) xpMultVal := 2
+	case(M_Wisp) xpMultVal := 3
+	case(M_Mandrake)  xpMultVal := 3
+	case(M_MiniDevil)  xpMultVal := 4
+	case(M_Shadow) xpMultVal := 4
+	case(M_Puppet)  xpMultVal := 4
+	case(M_Mush)  xpMultVal := 2
+	case(M_Dryad)  xpMultVal := 3
+	case(M_DragonHead)  xpMultVal := 4
+	case(M_Golem) xpMultVal := 6
+	case(M_DragonZombie) xpMultVal := 7
+	case(else) xpMultVal := 2
+)
+exit returning(xpMultVal)
+
+end
+
+script,enemyRankLookup,whichEnemy,begin
+	switch(whichEnemy) do(
+	case(0,1,2,3,4,5,6,7,8,9,10,13,29,42) exit returning(1)
+	case(11,12,14,15,16,19,21) exit returning(2)
+	case(17,18,20,22) exit returning(3)
+	case(23) exit returning(4)
+	case(30) exit returning(1)
+	
+	)
+end
+
+script,treasureChestRewardGet,whichType,forceRandVal=0,begin
+variable(randVal)
+if(forceRandVal) then(randVal := forceRandVal)
+randVal := random(0,99)
+switch(whichType) do(
+	case(1) do(
+	if(randVal > 90) then(treasureChest(4))
+	else if(randVal > 70) then(treasureChest(2))
+	else if(randVal > 40) then(treasureChest(1))
+	else(treasureChest(1))
+	#else(treasureChest(-1,150))
+	)
+
+
+
+)
+
+
+end
+
+##### all in between these from the wiki!
+
+plotscript, check and correct xp, begin
+  variable (i)
+  for (i, 0, 40) do (
+    if (hero by slot (i) <> -1) then (
+      if (hero levelled (i)) then (correct xp to level (i))
+    )
+  )
+end
+
+plotscript, correct xp to level, hero, begin
+  variable (level, earned xp, levelled)
+  
+  # REAL number of levels gained
+  levelled := hero levelled (hero)
+
+  level := get hero level (hero)
+
+  # xp earned on top of the (first) levelup
+  earned xp := 0
+  if (levelled >> 0) then (
+    level := level -- levelled + 1
+    earned xp := total experience (hero) -- experience to level (level)
+    set hero level (hero, level, true)
+  )
+
+  give experience (hero, experience to next level (hero) -- experience formula (level + 1,hero) + earned xp)
+  if (hero levelled (hero)) then (correct xp to level (hero))
+
+  # just in case you want to use the herolevelled command, recursively set correct
+  # levelled amount (undocumented stat tinkering!)
+  if (levelled >> 0) then (set hero stat (hero, 12, hero levelled (hero) + 1, 1))
+  return (earned xp)
+end
+
+# this returns the experience to reach a level from the last one. (so call with a minimum level of 1)
+# customise this script.
+plotscript, experience formula, level,heroPosition, begin
+  # example formula:
+  #   amount to level 1   = 30
+  #   amount to level x>1 = amount_to_last_level * 1.1 + 5
+#--V
+  variable(exp,whichHero,heroGrade,whichRank,whichType,xpMult)
+  whichHero := hero by slot(heroPosition)
+  heroGrade := get slice extra(slice child(currHeroList,whichHero),2)
+  whichRank := get slice extra(slice child(currHeroList,whichHero),1)
+  whichType := get slice extra(slice child(currHeroList,whichHero),0)
+  xpMult := enemyExpMultLookup(whichType)
+  exp := 12*(100+heroGrade)/100*(1+level*level)*(whichRank*2--1) * xpMult /2
+  return(exp)
+end
+#--^
+#end stuff from wiki

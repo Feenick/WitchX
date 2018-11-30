@@ -1,0 +1,426 @@
+
+
+plotscript,cutIn,toLoad,theRightOne=0,moveLength=40,begin
+variable(varI)
+
+#if toLoad is 0, free slice
+#else, load in backdrop slice
+
+if(toLoad) then(
+if(cutInSlice) then(
+move slice to(first child(cutInSlice),0 -- (moveLength/4) --20,0,2)
+		wait for slice(first child(cutInSlice))
+		move slice to(first child(cutInSlice),0 -- (moveLength) --20,0,2)
+		wait for slice(first child(cutInSlice))
+free slice(cutInSlice)
+cutInSlice := 0
+)
+else()
+	cutInSlice := create container(320,200)
+	set parent(load backdrop sprite (toLoad),cutInSlice)
+	set slice clipping (cutInSlice, true)
+	put slice(cutInSlice,0,0)
+	#line up with that
+	if(moveLength) then(
+	#
+	put slice(first child(cutInSlice),0 -- (moveLength) -- 20,0)
+		move slice to(first child(cutInSlice),0 -- (moveLength/4) -- 20,0,4)
+		wait for slice(first child(cutInSlice))
+		move slice to(first child(cutInSlice),0 -- 20,0,3)
+	)
+	
+)
+	else(
+		if(cutInSlice) then(
+
+		move slice to(first child(cutInSlice),0 -- (moveLength/4)-- 20,0,2)
+		wait for slice(first child(cutInSlice))
+		move slice to(first child(cutInSlice),0 -- (moveLength)-- 20,0,2)
+		wait for slice(first child(cutInSlice))
+
+		free slice (cutInSlice)
+			cutInSlice := 0
+		)
+		else(
+
+		)
+	exit script
+)
+
+end
+
+plotscript,heroRoomCheck,begin
+variable(varI)
+for(varI,0,23,1) do(
+if(not(find hero(varI))) then(
+exit returning(1)
+))
+exit returning(0)
+end
+
+
+
+plotscript,newTextSystem,textboxToGet,title=-1,portraitToGet=-1,Hold=0,Boxwidth=320,instantText=0,autoAdvance=0,ticksfx=3,cutInHold=0,begin
+#pulls up a textbox, with optional portrait graphic
+#if Hold is 1, throws the slice to a global variable before deleting it from here
+#####if doing the above, throws the slice to textBoxHoldHandle, so remember to free that
+#instantText: if 1, instantly outputs text
+#autoAdvance: if >1, waits for [autoAdvance] ticks before progressing textbox
+#if title is more than -1, make a box and put that string into it
+if(textBoxHoldHandle) then(
+free slice(textBoxHoldHandle)
+textBoxHoldHandle := 0
+)
+#--V
+$1 = ""
+$2 = ""
+variable(textSlice,BoxSlice,PortraitSlice,PortraitBoxSlice,PortBoxSlice,textIncSpeed,TitleSl,TitleTextSl)
+variable(varI,varT)
+if(portraitToGet <> -1) then(
+cutIn(portraitToGet)
+	)
+	wait(1)
+if(title > -1) then(
+	TitleTextSl := create text
+	set slice text(TitleTextSl,title)
+	TitleSl := create rect(string length(title)*8+8,14,1)
+	put slice(titleTextSl,4,4)
+	set parent(titleTextSl,TitleSl)
+)
+
+textSlice := create text
+set wrap(textSlice,true)
+textbox text(1,textboxToGet,true,false)
+
+BoxSlice := create rect(Boxwidth -- 6,40,1)
+	set slice width(textSlice,Boxwidth --10)
+	set vert anchor(BoxSlice,edge:bottom)
+	set vert align(BoxSlice,edge:bottom)
+	set slice screen x(textSlice,6)
+	set slice screen y(textSlice,4)
+if(PortraitBoxSlice) then(
+set parent(PortraitBoxSlice,BoxSlice)
+set slice screen x(PortraitBoxSlice,0)
+set slice screen y(PortraitBoxSlice,48)
+)
+if(TitleSl) then(
+set parent(TitleSl,boxSlice)
+set slice y(TitleSl,-20)
+)
+set slice x(BoxSlice,3)
+set slice y(BoxSlice,-2)
+set parent(textSlice,BoxSlice)
+
+if(instantText == 1) then(textIncSpeed := 9999) 
+else(textIncSpeed := textIncrementSpeed)
+while(string length(1) > string length(2)) do(
+	for(varI,0,textIncSpeed + textIncSpeed*(key is pressed(key:Space)||key is pressed(key:Enter)||key is pressed(key:Ctrl)),1) do(
+	varT += 1
+	if(string length(1) > string length(2)) then(
+	append ascii(2,ascii from string(1,varT))
+	)
+	else(
+	break)
+	)
+	set slice text(textSlice,2)
+	play sound(ticksfx,false,true)
+	wait(1)
+)
+if(not(autoAdvance)) then(
+while(not(keyval(key:Space) > 2 || keyval(key:Enter) >2 || keyval(key:Ctrl) >2)) do(
+wait(1)
+)
+)
+else(waitInterrupt(autoAdvance))
+if(Hold) then(
+textBoxHoldHandle := clone slice(BoxSlice)  #remember to free this slice yourself if doing this!
+)
+free slice(BoxSlice)
+BoxSlice := 0
+end
+
+script,waitInterrupt,waitLength,begin
+variable(varI)
+for(varI,1,waitLength,1) do(
+if(key is pressed(key:Space) || key is pressed(key:Ctrl) || key is pressed(key:Enter)) then(break)
+wait(1)
+)
+end
+
+plotscript,spiritMenuSummon,begin
+partySetup(1,0)
+end
+plotscript,spiritMenuSell,begin
+partySetup(1,1)
+end
+
+plotscript,monsterSell,begin
+partySetup(0,1)
+end
+
+plotscript,yesNoMenu,noDelete=0,begin
+set tag(tag:menuYes,off)
+open menu(1)
+wait(1)
+if(noDelete==0) then(
+free slice(textBoxHoldHandle)
+textBoxHoldHandle := 0)
+end
+
+
+script,battleIntroFX,inOrOut,whichPosition=0,style=0,begin
+variable(varI,interimSl,currSl,rootX,rootY,offSetVal)
+rootX := 160 + whichPosition
+rootY := 100
+#inOrOut:
+#0: slices appear from center, go outputs
+#1: slices contract from center
+switch(style) do(
+case(0) do(
+if(inOrOut) then(
+	#slices contract from center
+	if(not(battleIntroFXSl)) then(
+	battleIntroFXSl:= create container(320,200)
+	)
+partSetup(256)
+offSetVal := 256
+	for(varI,0,3,1) do(
+	interimSl := slice child(battleIntroFXSl,varI)
+	switch(varI) do(
+		case(0) do(realign slice(interimSl,edge:left,edge:top,edge:right,edge:top) #top right
+		put slice(interimSl,rootX+offSetVal,rootY--offSetVal))
+		case(1) do(realign slice(interimSl,edge:left,edge:top,edge:left,edge:top)	#top left
+		put slice(interimSl,rootX--offSetVal,rootY--offSetVal))
+		case(2) do(realign slice(interimSl,edge:left,edge:top,edge:left,edge:bottom)	#bottom left
+		put slice(interimSl,rootX--offSetVal,rootY+offSetVal))
+		case(3) do(realign slice(interimSl,edge:left,edge:top,edge:right,edge:bottom)	#bottom right
+		put slice(interimSl,rootX+offSetVal,rootY+offSetVal))
+	))
+		for(varI,1,8) do(
+		currSl := first child(battleIntroFXSl)
+		while(currSl) do(		
+		set slice width(currSl,slice width(currSl)/2)
+		set slice height(currSl,slice height(currSl)/2)
+		currSl := next sibling(currSl)
+		)
+		
+		wait(1+(varI/3--1)))
+	free slice(battleIntroFXSl)
+	battleIntroFXSl := 0
+)
+else(
+	#slices appear from center
+	if(battleIntroFXSl) then(
+	free slice(battleIntroFXSl)
+	battleIntroFXSl := 0
+	)
+	battleIntroFXSl := create container(320,200)
+	for(varI,0,3,1) do(
+	partSetup(1)
+	wait(1)
+	for(varI,1,8) do(
+		currSl := first child(battleIntroFXSl)
+		while(currSl) do(
+		set slice width(currSl,slice width(currSl)*2)
+		set slice height(currSl,slice height(currSl)*2)
+		currSl := next sibling(currSl)
+		)
+	wait(1+(2--varI/3))
+	)
+	)
+)
+)
+case(1) do(
+if(inOrOut) then(
+	#slices contract from center
+	if(not(battleIntroFXSl)) then(
+	battleIntroFXSl:= create container(320,200)
+	)
+	partSetup(1)
+	offSetVal := 32
+	for(varI,0,3,1) do(
+	interimSl := slice child(battleIntroFXSl,varI)
+	switch(varI) do(
+		case(0) do(realign slice(interimSl,edge:left,edge:top,edge:right,edge:top) #top right
+		put slice(interimSl,rootX+offSetVal,rootY--offSetVal))
+		case(1) do(realign slice(interimSl,edge:left,edge:top,edge:left,edge:top)	#top left
+		put slice(interimSl,rootX--offSetVal,rootY--offSetVal))
+		case(2) do(realign slice(interimSl,edge:left,edge:top,edge:left,edge:bottom)	#bottom left
+		put slice(interimSl,rootX--offSetVal,rootY+offSetVal))
+		case(3) do(realign slice(interimSl,edge:left,edge:top,edge:right,edge:bottom)	#bottom right
+		put slice(interimSl,rootX+offSetVal,rootY+offSetVal))
+	))
+		for(varI,1,8) do(
+		currSl := first child(battleIntroFXSl)
+		while(currSl) do(		
+		set slice width(currSl,slice width(currSl)*2)
+		set slice height(currSl,slice height(currSl)*2)
+		currSl := next sibling(currSl)
+		)
+		wait(4)
+		)
+	free slice(battleIntroFXSl)
+	battleIntroFXSl := 0
+)
+else(
+	#slices appear from center
+	if(battleIntroFXSl) then(
+	free slice(battleIntroFXSl)
+	battleIntroFXSl := 0
+	)
+	battleIntroFXSl := create container(320,200)
+	partSetup(256)
+	wait(1)
+	for(varI,1,8) do(
+		currSl := first child(battleIntroFXSl)
+		while(currSl) do(
+		if(style) then(set slice width(currSl,slice width(currSl)/2)
+		set slice height(currSl,slice height(currSl)/2))
+		else(set slice width(currSl,slice width(currSl)*2)
+		set slice height(currSl,slice height(currSl)*2))
+		currSl := next sibling(currSl)
+		)
+	if(style) then(wait(1+varI/3))
+	else(wait(1+(2--varI/3)))
+	)
+)
+)
+)
+
+
+	subscript,partSetup,initSize,begin
+		for(varI,0,3,1) do(
+	interimSl := create rect(initSize,initSize,-1)
+	set rect bgcol(interimSl,22)
+	set rect fgcol(interimSl,22)
+	put slice(interimSl,rootX,rootY)
+	set parent(interimSl,battleIntroFXSl)
+	switch(varI) do(
+		case(0) realign slice(interimSl,edge:left,edge:top,edge:left,edge:bottom) #top right
+		case(1) realign slice(interimSl,edge:left,edge:top,edge:right,edge:bottom)	#top left
+		case(2) realign slice(interimSl,edge:left,edge:top,edge:right,edge:top)	#bottom left
+		case(3) realign slice(interimSl,edge:left,edge:top,edge:left,edge:top)	#bottom right
+		)
+	)
+	end
+end
+
+
+
+plotscript,gameQuit,begin
+variable(intText)
+$2 = "Really quit?"
+intText := create text
+set slice text(intText,2)
+textBoxHoldHandle := create rect(94,12)
+set parent(intText,textBoxHoldHandle)
+center slice(intText)
+put slice(textBoxHoldHandle,160,50)
+set horiz anchor(textBoxHoldHandle,edge:center)
+yesNoMenu(0)
+if(check tag(tag:menuYes)) then(game over)
+end
+
+plotscript,npcSetPicture,whichNPC,whichpicture,whichFrame,begin
+Alter NPC(whichNPC,NPCstat:picture,whichPicture)
+set NPC frame(whichNPC,modulus(whichFrame,2))
+set NPC direction(whichNPC,whichFrame/2)
+end
+
+
+script,npcLookAbout,whichNPC,begin
+#this is done a lot, might as well make it its own function
+wait(10)
+set npc direction(whichNPC,modulus(NPC direction(whichNPC)+1,4))
+wait(10)
+set npc direction(whichNPC,modulus(npc direction(whichNPC)+2,4))
+wait(10)
+set npc direction(whichNPC,modulus(npc direction(whichNPC)+1,4))
+end
+
+
+script,treasureChest,whichItem,moneyCount=0,begin
+variable(varI,interimItemSl,boxSl,boxTextSl,boxFinalWidth,treasureSl,treasureDustSl,treasureX,treasureY)
+treasureAppear
+if(whichItem <> -1) then(
+$20 = "Found a %s!"
+get item name(19,whichItem)
+interimItemSl := create container(0,0)
+set slice extra(interimItemSl,0,whichItem)
+set parent(interimItemSl,interimItems)
+string sprintf(21,20,19)
+)
+else( 
+interimMoney += moneyCount
+$20 = "Found %c%d!"
+string sprintf(21,20,186,moneyCount)
+)
+boxFinalWidth := string length(21)*8 + 6
+boxSl := create rect(1,16)
+set slice clipping(boxSl,true)
+realign slice(boxSl,edge:left,edge:top,edge:center,edge:middle)
+boxTextSl := create text
+set slice text(boxTextSl,21)
+center slice(boxTextSl)
+set parent(boxTextSl,boxSl)
+put slice(boxSl,treasureX,NPC Y(0)*20)
+for(varI,5,0,-1) do(
+set slice width(boxSl,boxFinalWidth--(boxFinalWidth*varI/6))
+wait(1)
+)
+wait for key
+for(varI,0,5,1) do(
+set slice width(boxSl,boxFinalWidth--(boxFinalWidth*varI/6))
+wait(1)
+)
+free slice(boxSl)
+boxSl := 0
+treasureDisappear
+wait(10)
+	subscript,treasureAppear,begin
+	#treasure appears in front of Wyrd
+	switch(NPC direction(0)) do(
+	case(up) do(treasureX := NPC pixel X(0)
+	treasureY := NPC pixel Y(0)--20)
+	case(left) do(treasureX := NPC pixel X(0)--30
+	treasureY := NPC pixel Y(0))
+	case(right) do(treasureX := NPC pixel X(0)+30
+	treasureY := NPC pixel Y(0))
+	case(down) do(treasureX := NPC pixel X(0)
+	treasureY := NPC pixel Y(0)+20)
+	)
+	treasureSl := load sprite(spritetype:walkabout,20)
+	treasureDustSl := load sprite(spritetype:walkabout,21)
+	put slice(treasureSl,treasureX,treasureY)
+	put slice(treasureDustSl,treasureX--10,treasureY)
+	for(varI,0,6,1) do(
+	set sprite frame(treasureDustSl,varI)
+	set sprite frame(treasureSl,varI)
+	wait(1+varI/2)
+	)
+	wait(10)
+	set sprite frame(treasureSl,7)
+	#play sfx too
+	end
+	
+	subscript,treasureDisappear,begin
+		wait(10)
+	set sprite frame(treasureSl,6)
+	for(varI,0,5,1) do(
+	set sprite frame(treasureDustSl,varI)
+	set sprite frame(treasureSl,6--varI)
+	wait(1+varI/2)
+	)
+	free slice(treasureSl)
+	free slice(treasureDustSl)
+	treasureSl := 0
+	treasureDustSl := 0
+	end
+end
+
+script,waitForRealKeyPress,begin
+while(keyval(key:Enter) < 2 && keyval(key:Enter) < 2 && keyval(key:Enter) < 2) do(
+wait(1))
+
+
+end

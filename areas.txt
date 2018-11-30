@@ -1,0 +1,360 @@
+	script,Block0-1,begin
+	#--V
+	cardDropVal := 0
+	teleport to map(2,20,5)
+		put camera (250,20)
+		put hero(me,20*20,5*20+10)
+	pan camera(right,10,2)
+	nodeCreate(5,@Block0-1Scene1)
+	nodeCreate(3,7,2)
+	nodeCreate(3,10,2)
+	nodeCreate(9,@Block0-1Scene2)
+	#--^
+	end
+		#--V
+	script,Block0-1Scene1,begin
+	variable(varI,spSl)
+	#intro fight
+	set NPC direction(0,down)
+	wait(5)
+	set NPC direction(0,left)
+	wait(10)
+	walk NPC(0,right,12)
+		wait for camera
+		pixel focus camera(650,NPC Y(0)*20,1)
+		wait for camera
+
+	wait for NPC(0)
+	$10 = "Wyrd"
+		camera follows NPC (0)
+		wait(10)
+		npcSetPicture(0,11,4)
+		wait(20)
+		npcSetPicture(0,7,2)
+		wait(10)
+			cutIn(7)
+	newTextSystem(141,10)
+
+	newTextSystem(142,10)
+				cutIn(0)
+		npcSetPicture(0,11,6)
+		wait(10)
+			cutIn(7)
+	newTextSystem(145,10)
+		cutIn(0)
+		wait(5)
+		npcSetPicture(0,7,2)
+		walk NPC(0,right,1)
+		wait for NPC(0)
+		npcSetPicture(0,11,2)
+		battleIntroFX(1,40,1)
+		wait(1)
+		create NPC(1,35,6,left)
+		battleIntroFX(1,40,0)
+		newTextSystem(1)
+		newTextSystem(143)
+		npcSetPicture(0,7,3)
+		wait(15)
+		npcSetPicture(0,11,6)
+		wait(20)
+		npcSetPicture(0,7,3)
+		wait(15)
+		walk NPC(0,right)
+		walk NPC(1,left,-1)
+		wait for NPC(1)
+		newTextSystem(3)
+		newTextSystem(144)
+		alter NPC(1,NPCstat:move type,NPCmovetype:standstill)
+		wait(5)
+		for(varI,2,4,1) do(
+		npcSetPicture(1,17,varI)
+		wait(3)
+		)
+		battleToDo(5,1,1)
+		set hero stat(0,stat:HP,1,maximum stat)
+		set hero stat(0,stat:HP,1,current stat)
+		areaSlSetup(1)
+		for(varI,4,2,-1) do(
+		npcSetPicture(1,17,varI)
+		wait(8)
+		)
+	cutIn(7)
+	newTextSystem(4,10)	
+	cutIn(0)
+	wait(5)
+		npcSetPicture(1,17,0)
+		for(varI,0,6,1) do(
+		set npc frame(1,not(npc frame(1)))
+		wait(6)
+		)
+	newTextSystem(6)
+	newTextSystem(7)
+	npcSetPicture(1,17,6)
+	alter NPC(1,NPCstat:move speed,2)
+	alter NPC(1,NPCstat:move type,NPCmovetype:walkinplace)
+	newTextSystem(8)
+	walk NPC(1,left,-1)
+	wait for NPC(1)
+	alter NPC(1,NPCstat:move speed,4)
+	walk NPC(1,left,-3)
+	wait for NPC(1)
+	delete NPC(1)
+	wait(10)
+	cutIn(7)
+	npcSetPicture(0,11,3)
+	for(varI,10,12,1) do(
+	newTextSystem(varI)
+	)
+	cutIn(0)
+	wait(10)
+	npcSetPicture(0,11,1)
+	wait(3)
+	npcSetPicture(0,11,7)
+	wait(5)
+	cutIn(7)
+	newTextSystem(13)
+	cutIn(0)
+	spSl := load walkabout sprite(18)
+	put slice screen(spSl,150,70)
+	for(varI,0,6,1) do(
+	set sprite frame(spSl,varI)
+	wait(2)
+	)
+	cutIn(7)
+	newTextSystem(14)
+	cutIn(0)
+	fade screen out(read color(26,color:red),read color(26,color:green),read color(26,color:blue))
+	wait(1)
+	heroCheck(M_Wisp,1,70)
+	delete hero(0)
+	heroCheck(M_batty,2,25)
+	heroCheck(M_Pumpkin,3,1)
+	areaSlSetup(1)
+	free slice(spSl)
+	wait(1)
+	fade screen in
+	newTextSystem(15)
+	npcSetPicture(0,11,3)
+	wait(10)
+	cutIn(7)
+	newTextSystem(147)
+	wait(5)
+	npcSetPicture(0,7,2)
+	wait(5)
+	npcSetPicture(0,11,5)
+	wait(2)
+	npcSetPicture(0,11,0)
+	wait(4)
+	#show big screen here
+	newTextSystem(146,10)
+	cutIn(0)
+	wait(5)
+	npcSetPicture(0,11,6)
+	wait(15)
+	npcSetPicture(0,7,2)
+	wait(10)
+	#--^
+	end
+	
+	script,Block0-1Scene2,begin
+	#--V
+	variable(varI)
+	wait(10)
+	create NPC(1,62,6,left)
+	set NPC direction(0,down)
+	wait(10)
+	set NPC direction(0,left)
+	wait(10)
+	npcSetPicture(0,11,6)
+	wait(6)
+	cutIn(7)
+	newTextSystem(148,10)
+	newTextSystem(149,10)
+	cutIn(0)
+	wait(15)
+	npcSetPicture(0,7,2)
+	wait(5)
+	walk NPC(0,right,6)
+	wait for NPC(0)
+	wait(20)
+	alter NPC(0,NPCstat:move speed,2)
+	walk NPC(0,right,-4)
+	wait(20)
+	walk NPC(1,left,4)
+	wait for npc(1)
+	newTextSystem(150)
+	newTextSystem(151)
+			alter NPC(1,NPCstat:move type,NPCmovetype:standstill)
+	for(varI,2,4,1) do(
+		npcSetPicture(1,17,varI)
+		wait(3)
+		)
+	battleToDo(13,3,4)
+	wait(1)
+	for(varI,4,2,-1) do(
+		npcSetPicture(1,17,varI)
+		wait(5+(8--varI))
+	)
+	newTextSystem(152)
+	newTextSystem(153)
+	npcSetPicture(1,17,0)
+	for(varI,0,4,1) do(
+	set NPC frame(1,not(npc frame(1)))
+	wait(5)
+	)
+	newTextSystem(154)
+	newTextSystem(155)
+		battleIntroFX(1,20,1)
+	delete NPC(1)
+	battleIntroFX(1,20,0)
+	newTextSystem(156)
+
+	wait(25)
+	cutIn(7)
+	newTextSystem(157,10)
+	newTextSystem(158,10)
+	cutIn(0)
+	wait(15)
+	alter NPC(0,NPCstat:move speed,4)
+	walk NPC(0,right,4)
+	wait for NPC(0)
+	#--^
+	end
+	
+	#post-intro
+	script,entranceScene,begin
+	#--V
+	set tag(tag:introDone,on)
+	set tag(tag:intScene,on)
+	fade screen out
+	wait(1)
+	intermissionUISetup
+	teleport to map(3,9,12)
+	wait(10)
+	fade screen in
+	pan camera(up,4,2)
+	walk npc(0,up,4)
+	wait for npc(0)
+	npcLookAbout(0)
+	wait(10)
+	set npc direction(0,down)
+	wait(20)
+	npcSetPicture(0,11,3)
+	cutIn(7)
+	$10 = "Wyrd"
+	newTextSystem(167,10)
+	newTextSystem(168,10)
+	cutIn(0)
+	wait(10)
+	newTextSystem(169)
+	fade screen out
+	wait(1)
+	teleport to map(4,10,3)
+	pan camera(down,2,2)
+	fade screen in
+	create npc(0,10,13,up)
+	walk NPC(0,up,3)
+	wait for NPC(0)
+	npcLookAbout(0)
+	#noel pops up
+	set tag(tag:intScene,off)
+	#--^
+	end
+	
+	
+	#block 1
+	#pumpkin/slime/batties/wisps/dragon head
+	script,Block1-1,begin
+	#--V
+	fade screen out
+	teleport to map(1,5,3)
+	create NPC(0,5,5,right)
+	cardDropVal := 10
+	camera follows NPC(0)
+		nodeCreate(2,1,0)
+	if(check tag(tag:Block1A)) then(nodeCreate(1,1,2))
+	else(nodeCreate(5,@Block1-1Scene1))
+	nodeCreate(1,1,3)
+	nodeCreate(3,19,2)
+	set tag(tag:Block1A,on)
+	end
+	
+	script,block1-2,begin
+	
+	end
+	
+	script,Block1-1Scene1,begin
+	#initial comment on stuff
+	variable(varI)
+	for(varI,172,174,1) do(
+	#newTextSystem(varI)
+	)
+	cutIn(7)
+	$10 = "Wyrd"
+	newTextSystem(175,10)
+	cutIn(0)
+	cardDropVal := 100
+	battleToDo(25,3,2)
+	cardDropVal := 0
+	#--^
+	end
+	
+	#block 2 - castle depths
+	#--V 
+	#slime/batties/wisps/mandrake/mini devils
+	#--^
+	
+
+
+	#block 5 - library
+	#--V
+	#wisp/mini devil/shadow/puppet/dragon head/warrior ghost/mage ghost
+	#--^
+	
+
+	#block 7 - magical laboratory
+	#--V
+	#slime/wisp/golem/shadow/puppet/dragon head/shadow/werewolf
+	#--^
+	
+
+	#block 10 - clock tower
+	#--V
+	#wisp/puppet/dragon head/harpy/shadow/warrior ghost/mage ghost
+	#--^	
+
+	#block 11 - top floor
+	#--V
+	#batty/werewolf/venodevil/great devil/shadowdragon/vampire
+	#--^	
+
+	#block 13 - black space
+	#--V
+	#--^
+	
+plotscript,intermissionAreaSetup,begin
+#turn on layers based on progression
+#also place NPCs
+intermissionUISetup
+if(not(check tag(tag:intScene))) then(
+create NPC(0,6,8,down)
+#create NPC(1,11,9,down)
+)
+end
+
+
+	script,fxTestNodeSetup,begin
+	nodeCreate(5,@fxTest)
+	
+	end
+
+	script,fxTest,begin
+	fade screen in
+	battleIntroFX(0,0,0)
+	wait for key
+	battleIntroFX(0,0,1)
+	wait for key
+	battleIntroFX(1,0,0)
+	wait for key
+	battleIntroFX(1,0,1)
+	end
